@@ -1,0 +1,81 @@
+#!/bin/bash
+
+read -r -d '' help <<EOF
+options: --host [remote docker host ip]
+         --restart: instruct docker contaner to auto-restart
+         --localstart: invoke /usr/local/bin/run-slave.sh in container to start
+         --: arguments after this will be sent to the container start script
+argument: subdir name. Will run bash farm-<arg1> with hostname d-<arg1>
+ interactively
+EOF
+
+if test $# -le 0; then
+	echo "$help"
+	exit 1
+fi
+
+localstart=""
+hostprefix=""
+while [ $# -gt 0 ]; do
+echo "looking at arg: $1"
+case $1 in
+	--host)
+	host="-H tcp://$2:2376 --tls=true"
+	hostprefix="${2//.*/}-"
+	shift 2
+	;;
+	--localstart)
+	localstart="yes"
+	shift
+	;;
+	--restart)
+	restart="--restart=always"
+	shift
+	;;
+	--help)
+	echo "$help"
+	exit 0
+	;;
+	*)
+	break
+	;;
+esac
+
+  ## XXX: kinkie please doube-check this is where the loop was supposed to end
+done
+
+dir=$1
+shift
+
+if [ "$1" = "--" ]; then
+  shift
+fi
+
+imagename=farm-${dir}
+containername=${hostprefix}${imagename}-img
+container_hostname=d-${imagename}
+shareddir=$HOME/docker-images/${dir}
+export pjobs=4
+
+if [ -z "$host" -a ! -d $shareddir ]; then
+	echo "Not a dir: $dir"
+	exit 1
+fi
+
+
+docker rm $containername
+docker_cmd="docker ${host} run --rm -i -u jenkins --env=HOME=/home/jenkins \
+-w /home/jenkins -h "$container_hostname" --name="$containername" \
+--volume=${shareddir}:/home/jenkins \
+${imagename} "
+if [ -n "$localstart" ]; then
+  $docker_cmd /usr/local/bin/run-slave.sh $@
+else
+  wget -q -O $shareddir/slave.jar \
+    http://build.squid-cache.org/jnlpJars/slave.jar
+  docker run ${restart} --rm -i -u jenkins --env=HOME=/home/jenkins \
+	-w /home/jenkins \
+	-h "$container_hostname" --name="$containername" \
+	--volume=${shareddir}:/home/jenkins \
+	${imagename} bash -l -c 'env; exec java -jar slave.jar'
+fi

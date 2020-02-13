@@ -1,0 +1,19 @@
+#!/bin/bash
+read -r -d '' help <<EOF
+argument: subdir name. Will run image farm-<arg1> with hostname d-<arg1>
+ and run sshd inside it listening to port <arg2>
+EOF
+
+if [ $# -le 1 ]; then
+	echo $help
+	exit 1
+fi
+
+dir=$1
+shift
+port=$1
+shift
+
+docker rm farm-${dir}
+echo docker run -d -h d-${dir} --name="farm-${dir}" --volume=/home/jenkins/docker-images/${dir}:/home/jenkins --publish=${port}:22 farm-${dir} /usr/sbin/sshd -D
+docker run -d -h d-${dir} --name="farm-${dir}" --volume=/home/jenkins/docker-images/${dir}:/home/jenkins --publish=${port}:22 farm-${dir} /usr/sbin/sshd -D

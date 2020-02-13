@@ -1,0 +1,56 @@
+#template dockerfile to build a centos-based build image
+# run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
+
+FROM centos:centos6
+MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
+ADD devtools-2.repo /etc/yum.repos.d/
+ADD local/* /usr/local/bin/
+RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm && \
+	yum update -y && \
+	yum install -y \
+		autoconf \
+		automake \
+		bzip2 \
+		ccache \
+		clang \
+		cppunit \
+		cppunit-devel \
+		curl \
+		db4-devel \
+		devtoolset-2-gcc \
+		devtoolset-2-gcc-c++ \
+		devtoolset-2-binutils \
+		ed \
+		expat-devel \
+		git \
+		gnutls-devel \
+		gnutls-utils \
+		java-1.8.0-openjdk-headless \
+		libcap \
+		libcap-devel \
+		libtdb \
+		libtdb-devel \
+		libtool \
+		libtool-ltdl-devel \
+		libxml2 \
+		libxml2-devel \
+		make \
+		nettle-devel \
+		openldap-devel \
+		openssl-devel \
+		pam-devel \
+		perl-Pod-MinimumVersion \
+		redhat-lsb-core \
+		screen \
+		translate-toolkit \
+		vim \
+		xz \
+	&& \
+	yum clean all && \
+	groupadd -g 1000 jenkins && \
+	useradd -u 1000 -m -g jenkins -G ccache jenkins && \
+	rm -f /etc/profile.d/ccache* && \
+	ln -s /opt/rh/devtoolset-2/enable /etc/profile.d/devtoolset-2.sh
+
+USER jenkins
+CMD ["/bin/bash", "-l"]

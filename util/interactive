@@ -1,0 +1,56 @@
+#!/bin/bash
+read -r -d '' help <<EOF
+argument: subdir name. Will run bash farm-<arg1> with hostname d-<arg1>
+ interactively
+EOF
+
+if [ $# -le 0 ]; then
+	echo $help
+	exit 1
+fi
+
+while [ $# -gt 1 ]; do
+case $1 in
+	--root)
+	parms="$parms -u 0"
+	shift
+	;;
+	--rm)
+	parms="$parms $1"
+	shift
+	;;
+	--preclean)
+	preclean=true
+	shift
+	;;
+	*)
+	break
+	;;
+esac
+done
+	
+dir=${1%/}
+shift
+
+containername=farm-${dir}
+imgname=i-${containername}
+hostname=d-${containername}
+shareddir=$HOME/docker-images/${dir}
+
+if [ ! -d $shareddir ]; then
+	echo "Not a dir: $dir"
+	exit 1
+fi
+
+test -n "${preclean}" && docker rm ${imgname}
+
+docker run -i -t -h "$hostname" --name="$imgname" --volume=${shareddir}:/home/jenkins $parms ${containername} ${@:-/bin/bash}
+containerid=$(docker ps -a | fgrep ${imgname} | cut -f1 -d" "| tail -n +1 | tail -1)
+
+cat <<EOF
+Useful commands:
+docker ps -l : check last run image
+docker commit ${containerid} ${containername} to replace the running image for farm
+docker rm ${imgname} : remove leftover image
+docker kill ${imgname} : kill currently running jenkins-related instance
+EOF

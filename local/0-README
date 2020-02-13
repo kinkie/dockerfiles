@@ -1,0 +1,2 @@
+This directory contains utilities meant to be installed to containers.
+It will be copied by the makefile in the docker build context before building
