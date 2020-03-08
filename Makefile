@@ -17,7 +17,7 @@ $(TARGETS):
 all: $(TARGETS)
 
 push:
-	for d in $(TARGETS); do TAG=squidcache/buildfarm:$$d; docker tag farm-$$d $$TAG && docker push $$TAG; done
+	for d in $(TARGETS); do TAG=squidcache/buildfarm:$(CPU)-$$d; docker tag farm-$$d $$TAG && docker push $$TAG; done
 
 clean:
 	-for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
