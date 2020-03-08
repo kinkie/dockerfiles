@@ -1,5 +1,7 @@
 TARGETS=$(sort $(patsubst %-light,%,$(patsubst %/,%,$(dir $(wildcard */Dockerfile)))))
 .PHONY: $(TARGETS)
+ARM_BLACKLIST=centos-6
+CPU=$(shell uname -m)
 
 default: help
 
@@ -15,10 +17,10 @@ $(TARGETS):
 all: $(TARGETS)
 
 push:
-	for d in $(TARGETS); do docker tag farm-$$d squidcache/buildfarm:$$d && docker push squidcache/buildfarm:$$d; done
+	for d in $(TARGETS); do TAG=squidcache/buildfarm-$(CPU)-$$d; docker tag farm-$$d $$TAG && docker push $$TAG; done
 
 clean:
-	for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
+	-for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
 
 clean-images:
 	docker image prune -f
