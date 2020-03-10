@@ -18,6 +18,7 @@ RUN \
 		clang \
 		curl \
 		default-jre-headless \
+		ed \
 		g++ \
 		g++-8 \
 		git \

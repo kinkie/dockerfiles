@@ -12,6 +12,7 @@ RUN \
 		clang \
 		cppunit-devel \
 		curl \
+		ed \
 		gcc-c++ \
 		git \
 		gnutls-devel \
@@ -28,6 +29,7 @@ RUN \
 		lsb-release \
 		make \
 		pkg-config \
+		which \
 		xz \
 	&& \
 	zypper --non-interactive clean && \
