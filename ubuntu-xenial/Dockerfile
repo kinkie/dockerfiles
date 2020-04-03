@@ -9,7 +9,7 @@ ADD local/* /usr/local/bin/
 RUN \
 	apt-get update && \
 	apt-get upgrade --no-install-recommends -y && \
-	apt-get install --no-install-recommends -y \
+	DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
 		autoconf \
 		autoconf-archive \
 		automake \

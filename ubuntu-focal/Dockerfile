@@ -2,15 +2,14 @@
 # run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
 
 ARG distro=ubuntu
-ARG version=trusty
+ARG version=focal
 FROM ${distro}:${version}
 MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
-ADD openjdk-r-ppa-trusty.list /etc/apt/sources.list.d/
 ADD local/* /usr/local/bin/
 RUN \
 	apt-get update && \
 	apt-get upgrade --no-install-recommends -y && \
-	DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y --force-yes \
+	DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
 		autoconf \
 		autoconf-archive \
 		automake \
@@ -18,8 +17,10 @@ RUN \
 		ccache \
 		clang \
 		curl \
+		default-jre-headless \
 		ed \
 		g++ \
+		g++-8 \
 		git \
 		gnutls-bin \
 		libcap-dev \
@@ -30,11 +31,11 @@ RUN \
 		libssl-dev \
 		libtdb-dev \
 		libtool \
+		libtool-bin \
 		libxml2-dev \
 		lsb-release \
 		make \
 		nettle-dev \
-		openjdk-8-jre-headless \
 		pkg-config \
 		po4a \
 		translate-toolkit \
