@@ -34,7 +34,6 @@ RUN \
 		lsb-release \
 		make \
 		nettle-dev \
-		openjdk-8-jre-headless \
 		pkg-config \
 		po4a \
 		translate-toolkit \

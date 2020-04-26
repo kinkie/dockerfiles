@@ -21,7 +21,6 @@ RUN \
 		git \
 		gnutls-devel \
 		gnutls-utils \
-		java-11-openjdk-headless \
 		libcap \
 		libcap-devel \
 		libdb-devel \

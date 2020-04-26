@@ -17,7 +17,6 @@ RUN \
 		ccache \
 		clang \
 		curl \
-		default-jre-headless \
 		ed \
 		g++ \
 		git \

@@ -25,7 +25,6 @@ RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.
 		git \
 		gnutls-devel \
 		gnutls-utils \
-		java-1.8.0-openjdk-headless \
 		libcap \
 		libcap-devel \
 		libtdb \

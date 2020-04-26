@@ -25,7 +25,6 @@ RUN \
 		git \
 		gnutls-devel \
 		gnutls-utils \
-		java-1.8.0-openjdk-headless \
 		libcap-devel \
 		libtdb-devel \
 		libtool \
