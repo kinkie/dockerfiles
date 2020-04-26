@@ -14,13 +14,14 @@ RUN \
 		autoconf-archive \
 		automake \
 		bzip2 \
+		ca-certificates \
 		ccache \
 		clang \
+		clang-10 \
 		curl \
-		default-jre-headless \
 		ed \
 		g++ \
-		g++-8 \
+		g++-10 \
 		git \
 		gnutls-bin \
 		libcap-dev \
@@ -48,3 +49,6 @@ RUN \
 
 USER jenkins
 CMD ["/bin/bash", "-l"]
+
+# old packages, not needed anymore
+#		default-jre-headless \
