@@ -1,7 +1,7 @@
-# EOL on 2020-05-19
+# NOT WORKING! there are package conflicst when updating
 
 ARG DISTRO=fedora
-ARG VERSION=30
+ARG VERSION=32
 FROM ${DISTRO}:${VERSION}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 #	yum clean all && yum swap fakesystemd systemd \
