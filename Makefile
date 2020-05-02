@@ -3,6 +3,9 @@ TARGETS=$(sort $(patsubst %/,%,$(dir $(wildcard */Dockerfile))))
 .PHONY: $(TARGETS)
 ARM_BLACKLIST=centos-6
 CPU=$(shell uname -m)
+BUILDOPTS=
+#BUILDOPTS+=--pull
+#BUILDIOTS+=--no-cache
 
 default: help
 
@@ -12,7 +15,7 @@ list:
 $(TARGETS):
 	mkdir -p $@/local
 	rsync -a --delete local $@/
-	docker build --pull -t farm-$@ -f $@/Dockerfile $@
+	docker build $(BUILDOPTS) -t farm-$@ -f $@/Dockerfile $@
 	rm -rf $@/local
 	if test -n "$(PUSH)"; then TAG=squidcache/buildfarm:$(CPU)-$@; docker tag farm-$@ $$TAG && docker push $$TAG; fi
 
