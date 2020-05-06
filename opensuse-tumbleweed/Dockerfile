@@ -33,7 +33,8 @@ RUN \
 		xz \
 	&& \
 	zypper --non-interactive clean && \
-	useradd -m jenkins
+	useradd -m jenkins && \
+	useradd -m kinkie
 
 # old pacakges
 #		java-1_8_0-openjdk-headless \

@@ -48,6 +48,8 @@ RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.
 	yum clean all && \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -m -g jenkins -G ccache jenkins && \
+	groupadd -g 1001 kinkie && \
+	useradd -u 1001 -m -g kinkie -G ccache kinkie && \
 	rm -f /etc/profile.d/ccache* && \
 	ln -s /opt/rh/devtoolset-2/enable /etc/profile.d/devtoolset-2.sh
 

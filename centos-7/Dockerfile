@@ -47,6 +47,8 @@ RUN \
 	yum clean all && \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -g jenkins -m jenkins && \
+	groupadd -g 1001 kinkie && \
+	useradd -u 1001 -m -g kinkie kinkie && \
 	rm -f /etc/profile.d/ccache* && \
 	exit 0
 

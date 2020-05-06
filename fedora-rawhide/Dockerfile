@@ -41,7 +41,10 @@ RUN \
 	&& \
 	yum clean all && \
 	groupadd -g 1000 jenkins && \
-	useradd -u 1000 -g jenkins -m jenkins
+	useradd -u 1000 -g jenkins -m jenkins && \
+	groupadd -g 1001 kinkie && \
+	useradd -u 1001 -m -g kinkie kinkie && \
+	true
 
 USER jenkins
 CMD ["/bin/bash", "-l"]
