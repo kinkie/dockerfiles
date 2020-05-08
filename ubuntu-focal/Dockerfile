@@ -9,18 +9,19 @@ ADD local/* /usr/local/bin/
 RUN \
 	apt-get update && \
 	apt-get upgrade --no-install-recommends -y && \
-	DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+	DEBIAN_FRONTEND=noninteractive apt-get install -y \
 		autoconf \
 		autoconf-archive \
 		automake \
 		bzip2 \
 		ccache \
 		clang \
+		clang-10 \
 		curl \
 		default-jre-headless \
 		ed \
 		g++ \
-		g++-8 \
+		g++-10 \
 		git \
 		gnutls-bin \
 		libcap-dev \
