@@ -1,12 +1,12 @@
-ARG DISTRO=centos
-ARG VERSION=7
-FROM ${DISTRO}:centos${VERSION}
+# NOT WORKING! there are package conflicst when updating
+
+ARG DISTRO=fedora
+ARG VERSION=32
+FROM ${DISTRO}:${VERSION}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+#	yum clean all && yum swap fakesystemd systemd \
 ADD local/* /usr/local/bin/
 RUN \
-	yum clean all && yum swap fakesystemd systemd && \
-	yum install epel-release \
-	yum update -y && \
 	yum install -y \
 		autoconf \
 		automake \
@@ -23,10 +23,7 @@ RUN \
 		git \
 		gnutls-devel \
 		gnutls-utils \
-		groff \
-		java-1.8.0-openjdk-headless \
 		libcap-devel \
-		linuxdoc-tools \
 		libtdb-devel \
 		libtool \
 		libtool-ltdl-devel \
@@ -37,21 +34,17 @@ RUN \
 		openssl-devel \
 		pam-devel \
 		perl-Pod-MinimumVersion \
-		po4a \
 		redhat-lsb-core \
-		translate-toolkit \
-		which \
 		xz \
 	&& \
-	yum install -y doxygen && \
 	yum clean all && \
+	rm /etc/profile.d/ccache* && \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -g jenkins -m jenkins && \
 	groupadd -g 1001 kinkie && \
 	useradd -u 1001 -m -g kinkie kinkie && \
-	rm -f /etc/profile.d/ccache* && \
-	exit 0
+	true
 
 USER jenkins
-CMD ["/bin/bash"]
+CMD ["/bin/bash", "-l"]
 

@@ -17,10 +17,8 @@ RUN \
 		ccache \
 		clang \
 		curl \
-		default-jre-headless \
 		ed \
 		g++ \
-		g++-8 \
 		git \
 		gnutls-bin \
 		libcap-dev \
@@ -44,7 +42,10 @@ RUN \
 	apt-get autoremove -y && \
 	apt-get clean -y && \
 	groupadd -g 1000 jenkins && \
-	useradd -u 1000 -m -g jenkins jenkins
+	useradd -u 1000 -g jenkins -m jenkins && \
+	groupadd -g 1001 kinkie && \
+	useradd -u 1001 -m -g kinkie kinkie && \
+	true
 
 USER jenkins
 CMD ["/bin/bash", "-l"]

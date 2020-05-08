@@ -21,7 +21,6 @@ RUN \
 		git \
 		gnutls-devel \
 		gnutls-utils \
-		java-11-openjdk-headless \
 		libcap \
 		libcap-devel \
 		libdb-devel \
@@ -45,6 +44,8 @@ RUN \
 	dnf clean all && \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -m -g jenkins -G ccache jenkins && \
+	groupadd -g 1001 kinkie && \
+	useradd -u 1001 -m -g kinkie -G ccache kinkie && \
 	rm -f /etc/profile.d/ccache*
 
 USER jenkins

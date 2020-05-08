@@ -14,11 +14,11 @@ RUN \
 		autoconf-archive \
 		automake \
 		bzip2 \
+		ca-certificates \
 		ccache \
 		clang \
 		clang-10 \
 		curl \
-		default-jre-headless \
 		ed \
 		g++ \
 		g++-10 \
@@ -45,7 +45,13 @@ RUN \
 	apt-get autoremove -y && \
 	apt-get clean -y && \
 	groupadd -g 1000 jenkins && \
-	useradd -u 1000 -m -g jenkins jenkins
+	useradd -u 1000 -g jenkins -m jenkins && \
+	groupadd -g 1001 kinkie && \
+	useradd -u 1001 -m -g kinkie kinkie && \
+	true
 
 USER jenkins
 CMD ["/bin/bash", "-l"]
+
+# old packages, not needed anymore
+#		default-jre-headless \
