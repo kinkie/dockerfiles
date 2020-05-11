@@ -25,6 +25,7 @@ RUN \
 		gnutls-utils \
 		groff \
 		java-1.8.0-openjdk-headless \
+		libatomic \
 		libcap-devel \
 		linuxdoc-tools \
 		libtdb-devel \

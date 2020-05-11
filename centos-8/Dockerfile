@@ -21,6 +21,7 @@ RUN \
 		git \
 		gnutls-devel \
 		gnutls-utils \
+		libatomic \
 		libcap \
 		libcap-devel \
 		libdb-devel \

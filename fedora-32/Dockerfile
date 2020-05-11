@@ -23,6 +23,7 @@ RUN \
 		git \
 		gnutls-devel \
 		gnutls-utils \
+		libatomic \
 		libcap-devel \
 		libtdb-devel \
 		libtool \
