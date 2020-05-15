@@ -1,7 +1,7 @@
 # define PUSH to push upon build
 TARGETS=$(sort $(patsubst %/,%,$(dir $(wildcard */Dockerfile))))
 .PHONY: $(TARGETS)
-ARM_BLACKLIST=centos-6
+ARM_BLACKLIST=centos-6 gentoo
 CPU=$(shell uname -m)
 BUILDOPTS=
 #BUILDOPTS+=--pull
