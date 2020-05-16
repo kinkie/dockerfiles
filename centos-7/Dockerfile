@@ -24,7 +24,6 @@ RUN \
 		gnutls-devel \
 		gnutls-utils \
 		groff \
-		java-1.8.0-openjdk-headless \
 		libatomic \
 		libcap-devel \
 		linuxdoc-tools \
@@ -46,12 +45,14 @@ RUN \
 	&& \
 	yum install -y doxygen && \
 	yum clean all && \
+	rm -f /etc/profile.d/ccache* && \
+	true
+RUN \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -g jenkins -m jenkins && \
 	groupadd -g 1001 kinkie && \
 	useradd -u 1001 -m -g kinkie kinkie && \
-	rm -f /etc/profile.d/ccache* && \
-	exit 0
+	true
 
 USER jenkins
 CMD ["/bin/bash"]
