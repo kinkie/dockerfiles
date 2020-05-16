@@ -9,18 +9,18 @@ RUN \
 	groupadd -g 1001 kinkie && \
 	useradd -u 1001 -m -g kinkie kinkie
 RUN \
-    emerge -q \
-        dev-util/ccache \
-        sys-devel/clang \
-        dev-util/cppunit \
-        sys-apps/ed \
-        dev-vcs/git \
-        sys-libs/libcap \
-        sys-libs/tdb \
-        net-nds/openldap \
-        sys-apps/lsb-release \
-        && \
-    emerge -q --depclean && \
+	emerge -q \
+	    dev-util/ccache \
+	    sys-devel/clang \
+	    dev-util/cppunit \
+	    sys-apps/ed \
+	    dev-vcs/git \
+	    sys-libs/libcap \
+	    sys-libs/tdb \
+	    net-nds/openldap \
+	    sys-apps/lsb-release \
+	    && \
+	emerge -q --depclean && \
 	true
 
 USER jenkins

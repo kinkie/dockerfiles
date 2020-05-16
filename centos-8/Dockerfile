@@ -22,6 +22,7 @@ RUN \
 		gnutls-devel \
 		gnutls-utils \
 		libatomic \
+		libatomic-static \
 		libcap \
 		libcap-devel \
 		libdb-devel \
@@ -43,11 +44,14 @@ RUN \
 		xz \
 	&& \
 	dnf clean all && \
+	rm -f /etc/profile.d/ccache* && \
+	true
+RUN \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -m -g jenkins -G ccache jenkins && \
 	groupadd -g 1001 kinkie && \
 	useradd -u 1001 -m -g kinkie -G ccache kinkie && \
-	rm -f /etc/profile.d/ccache*
+	true
 
 USER jenkins
 CMD ["/bin/bash", "-l"]

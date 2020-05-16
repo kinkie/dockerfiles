@@ -24,6 +24,7 @@ RUN \
 		gnutls-devel \
 		gnutls-utils \
 		libatomic \
+		libatomic-static \
 		libcap-devel \
 		libtdb-devel \
 		libtool \
