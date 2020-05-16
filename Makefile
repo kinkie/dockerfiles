@@ -30,6 +30,10 @@ clean:
 clean-images:
 	docker image prune -f
 
+clean-all-images:
+	docker ps -a | grep -vF IMAGE | awk '{print $1}' | sort -u | xargs docker rm
+	docker images | awk '{print $1 ":" $2}'| sort -u | xargs docker rmi
+
 help:
 	@echo "possible targets: list, all, clean, clean-images"
 	@echo "                  $(TARGETS)"
