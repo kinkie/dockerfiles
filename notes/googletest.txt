@@ -1,0 +1,19 @@
+# install googletest on debian-based systems
+RUN \
+    cd /tmp && \
+	DEBIAN_FRONTEND=noninteractive apt-get install -y cmake && \
+    git clone https://github.com/google/googletest.git && \
+    cd googletest && CXXFLAGS='-std=c++11' cmake . && make install && \
+    DEBIAN_FRONTEND=noninteractive apt-get purge -y cmake && \
+    apt-get autoremove -y && apt-get clean -y && \
+	true
+
+# install googletest on redhat-based systems
+RUN \
+	yum install -y cmake && \
+    cd /tmp && \
+    git clone https://github.com/google/googletest.git && \
+    cd googletest && CXXFLAGS='-std=c++11' cmake . && make install && \
+    yum erase -y cmake && \
+    rm -rf /tmp/googletest && \
+ 	true
