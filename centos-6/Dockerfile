@@ -25,6 +25,7 @@ RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.
 		git \
 		gnutls-devel \
 		gnutls-utils \
+		libatomic \
 		libcap \
 		libcap-devel \
 		libtdb \
