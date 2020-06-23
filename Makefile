@@ -1,19 +1,14 @@
 # define PUSH to push upon build
 TARGETS:=$(sort $(patsubst %/,%,$(dir $(wildcard */Dockerfile))))
-.PHONY: $(TARGETS)
-ARMV7_BLACKLIST:=centos-6 gentoo
-ARM64_BLACKLIST:=gentoo
+# if a dir has a file named "skip", don't build for it
+TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip))),$(TARGETS))
 CPU:=$(shell uname -m)
+# nor if it has a file "skip-`uname -m`"
+TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-$(CPU)))),$(TARGETS))
+.PHONY: $(TARGETS)
 BUILDOPTS=
 #BUILDOPTS+=--pull
 #BUILDIOTS+=--no-cache
-
-ifeq ($(CPU),armv7l)
-	TARGETS:=$(filter-out $(ARMV7_BLACKLIST),$(TARGETS))
-endif
-ifeq ($(CPU),aarch64)
-	TARGETS:=$(filter-out $(ARM64_BLACKLIST),$(TARGETS))
-endif
 
 default: help
 
