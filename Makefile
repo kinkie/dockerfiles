@@ -1,7 +1,7 @@
 # define PUSH to push upon build
 ALL_TARGETS:=$(sort $(patsubst %/,%,$(dir $(wildcard */Dockerfile))))
 # if a dir has a file named "skip", don't build for it
-TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip))),$(TARGETS))
+TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip))),$(ALL_TARGETS))
 CPU:=$(shell uname -m)
 # nor if it has a file "skip-`uname -m`"
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-$(CPU)))),$(TARGETS))
@@ -13,7 +13,8 @@ BUILDOPTS=
 default: help
 
 list:
-	@echo $(TARGETS)
+	@echo "all possible targets:"; echo "$(ALL_TARGETS)"; echo
+	@echo "actual targets:"; echo "$(TARGETS)"
 
 $(ALL_TARGETS):
 	mkdir -p $@/local
