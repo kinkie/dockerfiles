@@ -9,8 +9,8 @@ LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 #		libdb4-devel \
 ADD local/* /usr/local/bin/
 RUN \
-	dnf update -y && \
-	dnf install -y \
+	dnf update -y --nogpg && \
+	dnf install -y --nogpg \
 		autoconf \
 		automake \
 		bzip2 \
