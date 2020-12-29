@@ -5,9 +5,12 @@ FROM centos:centos8
 MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
+	dnf install -y epel-release 'dnf-command(config-manager)' && \
+    dnf config-manager --set-enabled PowerTools && \
 	dnf update -y && \
-	dnf install -y epel-release && \
-	dnf --enablerepo=PowerTools install -y \
+    mv -v /etc/yum.repos.d/CentOS-PowerTools.repo.rpmsave /etc/yum.repos.d/CentOS-PowerTools.repo && \
+    dnf makecache && \
+	dnf install -y \
 		autoconf \
 		automake \
 		bzip2 \
