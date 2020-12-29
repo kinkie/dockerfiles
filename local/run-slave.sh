@@ -31,5 +31,5 @@ test -n "$secret" && secret="-secret $secret"
 
 test -d "${workdir}" || mkdir -p "${workdir}"
 cd ${workdir}
-curl -o agent.jar "${slave_jar_url}"
+curl -k -o agent.jar "${slave_jar_url}"
 exec java -jar agent.jar $jnlpurl $secret -workDir "${workdir}" -internalDir "remoting"
