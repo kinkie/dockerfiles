@@ -7,7 +7,7 @@ LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 #	yum clean all && yum swap fakesystemd systemd \
 ADD local/* /usr/local/bin/
 RUN \
-	yum --enablerepo=PowerTools install -y \
+	dnf install -y \
 		autoconf \
 		automake \
 		bzip2 \
@@ -16,7 +16,6 @@ RUN \
 		cppunit \
 		cppunit-devel \
 		curl \
-		db4-devel \
 		ed \
 		expat-devel \
 		gcc-c++ \
