@@ -16,9 +16,12 @@ list:
 	@echo "all possible targets:"; echo "$(ALL_TARGETS)"; echo
 	@echo "actual targets:"; echo "$(TARGETS)"
 
+centos-stream-%: base-centos-stream-%
+
 $(ALL_TARGETS):
 	mkdir -p $@/local
 	rsync -a --delete local $@/
+	if test -x "$@/pre-build" ; then  (cd $@; ./pre-build); fi
 	docker build $(BUILDOPTS) -t farm-$@ -f $@/Dockerfile $@
 	rm -rf $@/local
 	if test -n "$(PUSH)"; then TAG=squidcache/buildfarm:$(CPU)-$@; docker tag farm-$@ $$TAG && docker push $$TAG; fi
