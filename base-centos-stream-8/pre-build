@@ -1,0 +1,14 @@
+#!/bin/bash
+
+bootstrapimages="squidcache/buildfarm:`uname -m`-centos-stream-8 squidcache/buildfarm:`uname -m`-centos-8 farm-centos-stream-8 farm-centos-8 none"
+
+for img in $bootstrapimages
+do
+    if [ $(docker images --filter "reference=${img}" | wc -l) -gt 1 ]
+    then 
+        break
+    fi
+done
+
+echo "Using $img for bootstrap"
+docker run -t -i --volume="$PWD:/home/jenkins" --rm --user root "$img" /home/jenkins/build-centos-stream-tarball
