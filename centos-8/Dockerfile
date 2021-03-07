@@ -5,10 +5,10 @@ FROM centos:centos8
 MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
+    dnf -y install dnf-plugins-core && \
 	dnf install -y epel-release 'dnf-command(config-manager)' && \
-    dnf config-manager --set-enabled PowerTools && \
+    dnf config-manager --set-enabled powertools && \
 	dnf update -y && \
-    mv -v /etc/yum.repos.d/CentOS-PowerTools.repo.rpmsave /etc/yum.repos.d/CentOS-PowerTools.repo && \
     dnf makecache && \
 	dnf install -y \
 		autoconf \
