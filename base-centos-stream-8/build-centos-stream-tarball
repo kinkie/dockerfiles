@@ -15,6 +15,7 @@ yum --installroot $chroot update
 yum --installroot $chroot install -y yum centos-stream-repos bash
 
 # fix permissions
-chmod -R a+rx "$chroot/boot/efi/EFI"
+chmod -R a+rx "$chroot/boot"
+rm "$chroot/etc/.pwd.lock"
 (cd $chroot; tar -c -f ../centos-8-stream-root.tar.gz -z *)
 #rm -rf "$chroot"
