@@ -12,6 +12,9 @@ rpm --root $chroot --rebuilddb
 rsync $basemirror/8-stream/BaseOS/x86_64/os/Packages/centos-stream-release-\* .
 rpm --root $chroot --nodeps -i  centos-stream-release-*.rpm
 yum --installroot $chroot update
-yum --installroot $chroot install -y yum centos-stream-repos
+yum --installroot $chroot install -y yum centos-stream-repos bash
+
+# fix permissions
+chmod -R a+rx "$chroot/boot/efi/EFI"
 (cd $chroot; tar -c -f ../centos-8-stream-root.tar.gz -z *)
 #rm -rf "$chroot"
