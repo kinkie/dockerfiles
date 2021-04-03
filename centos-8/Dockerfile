@@ -7,7 +7,7 @@ ADD local/* /usr/local/bin/
 RUN \
     dnf -y install dnf-plugins-core && \
 	dnf install -y epel-release 'dnf-command(config-manager)' && \
-    dnf config-manager --set-enabled powertools && \
+    dnf config-manager --set-enabled PowerTools && \
 	dnf update -y && \
     dnf makecache && \
 	dnf install -y \
