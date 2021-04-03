@@ -16,6 +16,9 @@ list:
 	@echo "all possible targets:"; echo "$(ALL_TARGETS)"; echo
 	@echo "actual targets:"; echo "$(TARGETS)"
 
+targets:
+	@echo "$(TARGETS)"
+
 centos-stream-%: base-centos-stream-%
 
 $(ALL_TARGETS):
@@ -28,11 +31,15 @@ $(ALL_TARGETS):
 
 all: $(TARGETS)
 
+all-with-logs:
+	for t in $(TARGETS); do make $$t 2>&1 | tee $$t.log || mv $$t.log $$t-failed.log; done
+
 push:
 	for d in $(TARGETS); do TAG=squidcache/buildfarm:$(CPU)-$$d; docker tag farm-$$d $$TAG && docker push $$TAG; done
 
 clean:
 	-for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
+	-rm *.log
 
 clean-images:
 	docker image prune -f
