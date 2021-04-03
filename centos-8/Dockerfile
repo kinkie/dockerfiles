@@ -7,7 +7,8 @@ ADD local/* /usr/local/bin/
 RUN \
     dnf -y install dnf-plugins-core && \
 	dnf install -y epel-release 'dnf-command(config-manager)' && \
-    dnf config-manager --set-enabled PowerTools && \
+    dnf update -y && \
+    dnf config-manager --set-enabled powertools && \
 	dnf update -y && \
     dnf makecache && \
 	dnf install -y \
@@ -16,8 +17,6 @@ RUN \
 		bzip2 \
 		ccache \
 		clang \
-		cppunit \
-		cppunit-devel \
 		curl \
 		ed \
 		expat-devel \
@@ -45,6 +44,10 @@ RUN \
 		screen \
 		vim \
 		xz \
+	&& \
+	dnf install -y \
+		cppunit \
+		cppunit-devel \
 	&& \
 	dnf clean all && \
 	rm -f /etc/profile.d/ccache* && \
