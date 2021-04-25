@@ -40,7 +40,7 @@ RUN \
 		redhat-lsb-core \
 		xz \
 	&& \
-	yum clean all && \
+	yum --nogpg clean all && \
     true
 RUN \
 	groupadd -g 1000 jenkins && \
