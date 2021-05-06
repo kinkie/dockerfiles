@@ -31,6 +31,7 @@ RUN \
 		libtool \
 		libtool-ltdl-devel \
 		libxml2-devel \
+		m4 \
 		make \
 		nettle-devel \
 		openldap-devel \
