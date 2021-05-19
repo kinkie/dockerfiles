@@ -25,17 +25,22 @@ $(ALL_TARGETS):
 	mkdir -p $@/local
 	rsync -a --delete local $@/
 	if test -x "$@/pre-build" ; then  (cd $@; ./pre-build); fi
-	docker build $(BUILDOPTS) -t farm-$@ -f $@/Dockerfile $@
+	docker build $(BUILDOPTS) -t squidcache/buildfarm:$(CPU)-$@ -t squidcache/buildfarm-$(CPU)-$@:latest -f $@/Dockerfile $@
 	rm -rf $@/local
-	if test -n "$(PUSH)"; then TAG=squidcache/buildfarm:$(CPU)-$@; docker tag farm-$@ $$TAG && docker push $$TAG; fi
+	if test -n "$(PUSH)"; then docker push -a squidcache/buildfarm-$(CPU)-$@ ; fi
 
 all: $(TARGETS)
 
 all-with-logs:
 	for t in $(TARGETS); do make $$t 2>&1 | tee $$t.log || mv $$t.log $$t-failed.log; done
 
+# push locally-built images to the repository
 push:
-	for d in $(TARGETS); do TAG=squidcache/buildfarm:$(CPU)-$$d; docker tag farm-$$d $$TAG && docker push $$TAG; done
+	for d in $(TARGETS); do TAG=squidcache/buildfarm-$(CPU)-$$d ; docker push -a $$TAG; done
+
+# promote "latest" image to "stable" in the repository
+promote:
+	for d in $(TARGETS); do TAG=squidcache/buildfarm-$(CPU)-$$d; docker tag $$TAG:latest $$TAG:stable; docker push -a $$TAG; done
 
 clean:
 	-for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
