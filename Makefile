@@ -9,7 +9,10 @@ TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-$(CPU)))),$(TARGET
 BUILDOPTS=
 BUILDOPTS+=--pull
 #BUILDIOTS+=--no-cache
+HAVE_EXPERIMENTAL=$(shell grep experimental /etc/docker/daemon.json)
+ifneq ("$(HAVE_EXPERIMENTAL)", "")
 BUILDOPTS+=--squash
+endif
 
 default: help
 
@@ -56,4 +59,5 @@ clean-all-images:
 
 help:
 	@echo "possible targets: list, all, clean, clean-images, push, promote, all-with-logs"
+	@echo "BUILDOPTS: $(BUILDOPTS)"
 	@echo "images that can be built: $(TARGETS)"
