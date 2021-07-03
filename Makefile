@@ -7,8 +7,9 @@ CPU:=$(shell uname -m)
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-$(CPU)))),$(TARGETS))
 .PHONY: $(ALL_TARGETS)
 BUILDOPTS=
-#BUILDOPTS+=--pull
+BUILDOPTS+=--pull
 #BUILDIOTS+=--no-cache
+BUILDOPTS+=--squash
 
 default: help
 
@@ -40,7 +41,7 @@ push:
 
 # promote "latest" image to "stable" in the repository
 promote:
-	for d in $(TARGETS); do TAG=squidcache/buildfarm-$(CPU)-$$d; docker tag $$TAG:latest $$TAG:stable; docker push -a $$TAG; done
+	for d in $(TARGETS); do TAG=squidcache/buildfarm-$(CPU)-$$d; docker tag $$TAG:latest $$TAG:stable; docker push $$TAG:stable; done
 
 clean:
 	-for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
@@ -54,5 +55,5 @@ clean-all-images:
 	docker images | awk '{print $1 ":" $2}'| sort -u | xargs docker rmi
 
 help:
-	@echo "possible targets: list, all, clean, clean-images"
-	@echo "                  $(TARGETS)"
+	@echo "possible targets: list, all, clean, clean-images, push, promote, all-with-logs"
+	@echo "images that can be built: $(TARGETS)"
