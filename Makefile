@@ -42,6 +42,9 @@ all-with-logs:
 push:
 	for d in $(TARGETS); do TAG=squidcache/buildfarm-$(CPU)-$$d ; docker push -a $$TAG; done
 
+push-latest:
+	docker images | grep latest | grep squidcache/buildfarm-armv7l| awk '{print $$1}'|xargs -n 1 docker push -a
+
 # promote "latest" image to "stable" in the repository
 promote:
 	for d in $(TARGETS); do TAG=squidcache/buildfarm-$(CPU)-$$d; docker tag $$TAG:latest $$TAG:stable; docker push $$TAG:stable; done
@@ -58,6 +61,6 @@ clean-all-images:
 	docker images | awk '{print $1 ":" $2}'| sort -u | xargs docker rmi
 
 help:
-	@echo "possible targets: list, all, clean, clean-images, push, promote, all-with-logs"
+	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs"
 	@echo "BUILDOPTS: $(BUILDOPTS)"
 	@echo "images that can be built: $(TARGETS)"
