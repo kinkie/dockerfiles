@@ -13,6 +13,7 @@ RUN \
 		clang \
 		cppunit-devel \
 		curl \
+		diffutils \
 		ed \
 		gcc-c++ \
 		git \
@@ -29,6 +30,7 @@ RUN \
 		lsb-release \
 		make \
 		pkg-config \
+		util-linux \
 		which \
 		xz \
 	&& \
