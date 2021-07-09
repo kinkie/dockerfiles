@@ -36,6 +36,7 @@ RUN \
 		openssl-devel \
 		pam-devel \
 		perl-Pod-MinimumVersion \
+		pkgconf-pkg-config \
 		redhat-lsb-core \
 		xz \
 	&& \
