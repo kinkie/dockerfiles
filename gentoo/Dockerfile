@@ -1,4 +1,4 @@
-FROM gentoo/stage3-amd64:latest
+FROM gentoo/stage3:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
@@ -14,17 +14,6 @@ RUN \
     cp /etc/portage/make.conf /etc/portage/make.conf.bak && \
     echo 'FEATURES="-sandbox -ipc-sandbox -network-sandbox -pid-sandbox -usersandbox"' >>/etc/portage/make.conf && \
     echo 'USE="-X -alsa* -apache2* -fortran -office_implementation_libreoffice -ada* -lcd* -libreoffice* -video* -xtables*"' >>/etc/portage/make.conf && \
-    emerge -q --newuse binutils && \
-    binutils-config 2 && \
-    . /etc/profile && \
-    emerge -q --newuse \
-        sys-libs/glibc \
-        && \
-    emerge -q --newuse \
-        sys-devel/gcc \
-        && \
-    gcc-config 2 && \
-    . /etc/profile && \
     sed -i~ 's/FEATURES=.*//' /etc/portage/make.conf && \
     emerge -q --update --deep --with-bdeps=y --newuse @world && \
 	emerge -q \
@@ -42,7 +31,7 @@ RUN \
 	emerge --depclean && \
     emerge --prune && \
     eclean --deep distfiles && eclean-pkg && \
-    ln -s ln -s /usr/lib/llvm/11/bin/* /usr/local/bin && \
+    ln -s /usr/lib/llvm/*/bin/* /usr/local/bin && \
     rm -rf /var/db/repos/gentoo && \
 	true
 
