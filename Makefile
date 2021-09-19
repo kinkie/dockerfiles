@@ -57,7 +57,11 @@ clean-images:
 	docker container prune -f
 	docker image prune -f
 
-prune-images: clean-images
+clean-dangling-images:
+	docker container prune -f
+	docker images | grep -F '<none>' | awk '{print $$3}' | xargs -r docker rmi
+
+clean-all-images: clean-images clean-dangling-images
 	docker container prune -f
 	docker images | grep -v -F -e REPOSITORY -e '<none>' | awk '{print $$1 ":" $$2 }' | uniq | xargs -r docker rmi
 	docker images | grep -v -F -e REPOSITORY | awk '{print $$3}' | uniq | xargs -r docker rmi
