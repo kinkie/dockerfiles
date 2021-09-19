@@ -59,8 +59,8 @@ clean-images:
 
 prune-images: clean-images
 	docker container prune -f
-	docker images | grep -v -F -e REPOSITORY -e '<none>' | awk '{print $1 ":" $2 }' | uniq | xargs docker rmi || true
-	docker images | grep -v -F -e REPOSITORY | awk '{print $3}' | uniq | xargs docker rmi
+	docker images | grep -v -F -e REPOSITORY -e '<none>' | awk '{print $$1 ":" $$2 }' | uniq | xargs -r docker rmi
+	docker images | grep -v -F -e REPOSITORY | awk '{print $$3}' | uniq | xargs -r docker rmi
 
 clean-all-images:
 	docker ps -a | grep -vF IMAGE | awk '{print $1}' | sort -u | xargs docker rm
