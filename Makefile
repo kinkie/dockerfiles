@@ -66,10 +66,6 @@ clean-all-images: clean-images clean-dangling-images
 	docker images | grep -v -F -e REPOSITORY -e '<none>' | awk '{print $$1 ":" $$2 }' | uniq | xargs -r docker rmi
 	docker images | grep -v -F -e REPOSITORY | awk '{print $$3}' | uniq | xargs -r docker rmi
 
-clean-all-images:
-	docker ps -a | grep -vF IMAGE | awk '{print $1}' | sort -u | xargs docker rm
-	docker images | awk '{print $1 ":" $2}'| sort -u | xargs docker rmi
-
 help:
 	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs"
 	@echo "BUILDOPTS: $(BUILDOPTS)"
