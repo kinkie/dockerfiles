@@ -50,6 +50,11 @@ RUN \
 	groupadd -g 1001 kinkie && \
 	useradd -u 1001 -m -g kinkie kinkie && \
 	true
+RUN \
+	test "`uname -m`" = "armv7l" && \
+	test -f /usr/bin/armv7hl-redhat-linux-gnueabi-pkg-config && \
+	rm -f /usr/bin/pkg-config && \
+	ln -s /usr/bin/armv7hl-redhat-linux-gnueabi-pkg-config /usr/bin/pkg-config
 
 USER jenkins
 CMD ["/bin/bash", "-l"]
