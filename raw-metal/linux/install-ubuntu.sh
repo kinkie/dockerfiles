@@ -33,10 +33,15 @@ setup_ssh_user () {
 # jenkins
 useradd -u 1000 -g 1000 -G docker -s /bin/bash -m jenkins
 setup_ssh_user jenkins
+su - jenkins -c '\
+	mkdir -p workspace docker-imags/homedir && \
+	touch workspace/CACHEDIR.TAG docker-imags/homedir/CACHEDIR.TAG && \
+	true'
 
 # kinkie
 useradd -u 1001 -g 1001 -G docker -s /bin/bash -m kinkie
 setup_ssh_user kinkie
+setup_ssh_user root
 
 # passwords
 echo "password for jenkins"
