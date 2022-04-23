@@ -17,11 +17,9 @@ RUN \
 		ca-certificates \
 		ccache \
 		clang \
-		clang-12 \
 		curl \
 		ed \
 		g++ \
-		g++-11 \
 		git \
 		gnutls-bin \
 		libcap-dev \
