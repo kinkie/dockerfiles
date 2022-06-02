@@ -5,59 +5,61 @@ FROM centos:centos8
 MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
+    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
     dnf -y install dnf-plugins-core && \
-	dnf install -y epel-release 'dnf-command(config-manager)' && \
+    dnf install -y epel-release 'dnf-command(config-manager)' && \
     dnf update -y && \
     dnf config-manager --set-enabled powertools && \
-	dnf update -y && \
+    dnf update -y && \
     dnf makecache && \
-	dnf install -y \
-		autoconf \
-		automake \
-		bzip2 \
-		ccache \
-		clang \
-		curl \
-		ed \
-		expat-devel \
-		git \
-		gnutls-devel \
-		gnutls-utils \
-		libatomic \
-		libatomic-static \
-		libcap \
-		libcap-devel \
-		libdb-devel \
-		libtdb \
-		libtdb-devel \
-		libtool \
-		libtool-ltdl-devel \
-		libxml2 \
-		libxml2-devel \
-		make \
-		nettle-devel \
-		openldap-devel \
-		openssl-devel \
-		pam-devel \
-		perl-Perl-MinimumVersion \
-		redhat-lsb-core \
-		screen \
-		vim \
-		xz \
-	&& \
-	dnf install -y \
-		cppunit \
-		cppunit-devel \
-	&& \
-	dnf clean all && \
-	rm -f /etc/profile.d/ccache* && \
-	true
+    dnf install -y \
+        autoconf \
+        automake \
+        bzip2 \
+        ccache \
+        clang \
+        curl \
+        ed \
+        expat-devel \
+        git \
+        gnutls-devel \
+        gnutls-utils \
+        libatomic \
+        libatomic-static \
+        libcap \
+        libcap-devel \
+        libdb-devel \
+        libtdb \
+        libtdb-devel \
+        libtool \
+        libtool-ltdl-devel \
+        libxml2 \
+        libxml2-devel \
+        make \
+        nettle-devel \
+        openldap-devel \
+        openssl-devel \
+        pam-devel \
+        perl-Perl-MinimumVersion \
+        redhat-lsb-core \
+        screen \
+        vim \
+        xz \
+    && \
+    dnf install -y \
+        cppunit \
+        cppunit-devel \
+    && \
+    dnf clean all && \
+    rm -f /etc/profile.d/ccache* && \
+    true
 RUN \
-	groupadd -g 1000 jenkins && \
-	useradd -u 1000 -m -g jenkins -G ccache jenkins && \
-	groupadd -g 1001 kinkie && \
-	useradd -u 1001 -m -g kinkie -G ccache kinkie && \
-	true
+    groupadd -g 1000 jenkins && \
+    useradd -u 1000 -m -g jenkins -G ccache jenkins && \
+    groupadd -g 1001 kinkie && \
+    useradd -u 1001 -m -g kinkie -G ccache kinkie && \
+    true
 
 USER jenkins
 CMD ["/bin/bash", "-l"]
