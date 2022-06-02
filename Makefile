@@ -28,6 +28,7 @@ targets:
 	@echo "$(TARGETS)"
 
 $(ALL_TARGETS):
+	(echo; echo; echo; echo "building $@") $(LOGCMD)
 	mkdir -p $@/local
 	rsync -a --delete local $@/
 	if test -x "$@/pre-build" ; then  (cd $@; ./pre-build); fi
