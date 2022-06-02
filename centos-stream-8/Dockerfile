@@ -1,19 +1,9 @@
 #template dockerfile to build a centos-based build image
 # run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
 
-FROM centos:8
+FROM quay.io/centos/centos:stream8
 MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
-RUN \
-    dnf install -y centos-release-stream && \
-    dnf swap -y centos-{linux,stream}-repos && \
-    dnf distro-sync -y && \
-    dnf upgrade-minimal --setopt=install_weak_deps=False -y && \
-    dnf clean all && \
-    rm -rf /tmp/* && \
-    rm -rf /var/cache/yum && \
-    rm -rf /var/cache/dnf && \
-    find /var/log -type f -name '*.log' -delete
 RUN \
     dnf -y install dnf-plugins-core && \
 	dnf install -y epel-release 'dnf-command(config-manager)' && \
