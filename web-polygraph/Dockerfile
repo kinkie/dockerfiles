@@ -12,9 +12,8 @@ RUN \
 	DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
 		bzip2 \
 		curl \
-		lsb-release \
 		xz-utils \
-        polygraph \
+		polygraph \
 	&& \
 	apt-get autoremove -y && \
 	apt-get clean -y && \

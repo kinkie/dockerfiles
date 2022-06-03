@@ -42,7 +42,6 @@ RUN \
         openssl-devel \
         pam-devel \
         perl-Perl-MinimumVersion \
-        redhat-lsb-core \
         screen \
         vim \
         xz \

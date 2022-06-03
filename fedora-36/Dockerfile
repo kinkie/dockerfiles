@@ -36,7 +36,6 @@ RUN \
 		pam-devel \
 		perl-Pod-MinimumVersion \
 		pkgconf-pkg-config \
-		redhat-lsb-core \
 		xz \
 	&& \
 	yum clean all && \

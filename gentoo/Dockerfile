@@ -22,7 +22,6 @@ RUN \
 	    dev-vcs/git \
 	    net-nds/openldap \
 	    sys-apps/ed \
-	    sys-apps/lsb-release \
 	    sys-devel/clang \
 	    sys-libs/libcap \
 	    sys-libs/tdb \

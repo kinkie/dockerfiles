@@ -33,7 +33,6 @@ RUN \
 		libtool \
 		libtool-bin \
 		libxml2-dev \
-		lsb-release \
 		make \
 		nettle-dev \
 		pkg-config \

@@ -35,7 +35,6 @@ RUN \
 		openssl-devel \
 		pam-devel \
 		perl-Pod-MinimumVersion \
-		redhat-lsb-core \
 		xz \
 	&& \
 	yum clean all && \

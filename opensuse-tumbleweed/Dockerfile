@@ -27,7 +27,6 @@ RUN \
 		libopenssl-devel \
 		libtool \
 		libxml2-devel \
-		lsb-release \
 		make \
 		pkg-config \
 		util-linux \

@@ -38,7 +38,6 @@ RUN \
 		pam-devel \
 		perl-Pod-MinimumVersion \
 		po4a \
-		redhat-lsb-core \
 		translate-toolkit \
 		which \
 		xz \

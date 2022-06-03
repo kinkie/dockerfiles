@@ -35,7 +35,6 @@ RUN \
 		libtool-bin \
 		libxml2-dev \
 		linuxdoc-tools \
-		lsb-release \
 		make \
 		nano \
 		nettle-dev \

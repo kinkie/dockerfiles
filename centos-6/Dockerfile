@@ -40,7 +40,6 @@ RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.
 		openssl-devel \
 		pam-devel \
 		perl-Pod-MinimumVersion \
-		redhat-lsb-core \
 		screen \
 		translate-toolkit \
 		vim \
