@@ -12,6 +12,8 @@ apt -y upgrade
 apt -y install \
 	cpufrequtils \
 	docker.io \
+	duplicity \
+	lftp \
 	mosh \
 	openjdk-11-jre-headless \
 	rcs \
