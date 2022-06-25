@@ -10,6 +10,7 @@ apt purge -y snap
 apt -y update 
 apt -y upgrade
 apt -y install \
+	apt-config-auto-update \
 	cpufrequtils \
 	docker.io \
 	duplicity \
