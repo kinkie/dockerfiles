@@ -31,7 +31,6 @@ $(ALL_TARGETS):
 	(echo; echo; echo; echo "building $@") $(LOGCMD)
 	mkdir -p $@/local
 	rsync -a --delete local $@/
-	if test -x "$@/pre-build" ; then  (cd $@; ./pre-build); fi
 	docker build $(BUILDOPTS) -t squidcache/buildfarm:$(CPU)-$@ -t squidcache/buildfarm-$(CPU)-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log $(LOGCMD)
 	rm -rf $@/local
 	if test -n "$(PUSH)"; then docker push -a squidcache/buildfarm-$(CPU)-$@ ; fi
