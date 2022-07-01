@@ -30,10 +30,11 @@ targets:
 $(ALL_TARGETS):
 	(echo; echo; echo; echo "building $@") $(LOGCMD)
 	mkdir -p $@/local
-	rsync -a --delete local $@/
-	docker build $(BUILDOPTS) -t squidcache/buildfarm:$(CPU)-$@ -t squidcache/buildfarm-$(CPU)-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log $(LOGCMD)
+	rsync -a --delete local/all/* $@/local
+	rsync -a --delete local/`uname -m`/* $@/local
+	docker build $(BUILDOPTS) -t squidcache/buildfarm:$(CPU)-$@ -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log $(LOGCMD)
 	rm -rf $@/local
-	if test -n "$(PUSH)"; then docker push -a squidcache/buildfarm-$(CPU)-$@ ; fi
+	if test -n "$(PUSH)"; then docker push -a squidcache/buildfarm-$(CPU)-$@ ; docker push squidcache/buildfarm-$@:latest fi
 
 all: $(TARGETS)
 
