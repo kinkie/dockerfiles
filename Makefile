@@ -35,6 +35,7 @@ $(ALL_TARGETS):
 	docker build $(BUILDOPTS) -t squidcache/buildfarm:$(CPU)-$@ -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log
 	rm -rf $@/local
 	if test -n "$(PUSH)"; then docker push -a squidcache/buildfarm-$(CPU)-$@ ; docker push squidcache/buildfarm-$@:latest ; fi 2>&1 | tee $@.log
+	mv $@.log $@.done.log
 
 all: $(TARGETS)
 
