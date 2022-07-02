@@ -34,7 +34,7 @@ $(ALL_TARGETS):
 	rsync -a --delete local/`uname -m`/* $@/local
 	docker build $(BUILDOPTS) -t squidcache/buildfarm:$(CPU)-$@ -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log $(LOGCMD)
 	rm -rf $@/local
-	if test -n "$(PUSH)"; then docker push -a squidcache/buildfarm-$(CPU)-$@ ; docker push squidcache/buildfarm-$@:latest fi
+	if test -n "$(PUSH)"; then docker push -a squidcache/buildfarm-$(CPU)-$@ ; docker push squidcache/buildfarm-$@:latest ; fi
 
 all: $(TARGETS)
 
