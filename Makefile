@@ -6,6 +6,10 @@ CPU:=$(shell uname -m)
 # nor if it has a file "skip-`uname -m`"
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-$(CPU)))),$(TARGETS))
 .PHONY: $(ALL_TARGETS)
+
+# archutectures must be one of amd64, arm/v7l, arm64/v8
+ARCH:=$(uname -m)
+
 BUILDOPTS=
 BUILDOPTS+=--pull
 #BUILDIOTS+=--no-cache
@@ -17,6 +21,15 @@ endif
 # ifneq ("$(LOG)", "")
 # LOGCMD=2>&1 | tee -a $(LOG)
 # endif
+
+make_manifest = \
+	docker manifest create squidcache/buildfarm-$(1):latest \
+		--amend squidcache/buildfarm-x86_64-$(1):latest \
+	$(if $(wildcard $(1)/skip-aarch64),, --amend squidcache/buildfarm-aarch64-$(1):latest) \
+	$(if $(wildcard $(1)/skip-armv7l),, --amend squidcache/buildfarm-armv7l-$(1):latest)
+
+testme:
+	$(call make_manifest,centos-stream-8)
 
 default: help
 
@@ -32,9 +45,11 @@ $(ALL_TARGETS):
 	mkdir -p $@/local
 	rsync -a --delete local/all/* $@/local
 	rsync -a --delete local/`uname -m`/* $@/local
-	docker build $(BUILDOPTS) -t squidcache/buildfarm:$(CPU)-$@ -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log
+	docker build $(BUILDOPTS) -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log
 	rm -rf $@/local
-	if test -n "$(PUSH)"; then docker push -a squidcache/buildfarm-$(CPU)-$@ ; docker push squidcache/buildfarm-$@:latest ; fi 2>&1 | tee $@.log
+	if test -n "$(PUSH)"; then docker push squidcache/buildfarm-$(CPU)-$@:latest ; fi 2>&1 | tee -a $@.log
+	$(call make_manifest,$@)
+	if test -n "$(PUSH)"; then docker manifest push squidcache/buildfarm-$@:latest ; fi 2>&1 | tee -a $@.log
 	mv $@.log $@.done.log
 
 all: $(TARGETS)
