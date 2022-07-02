@@ -14,9 +14,9 @@ ifneq ("$(HAVE_EXPERIMENTAL)", "")
 BUILDOPTS+=--squash
 endif
 
-ifneq ("$(LOG)", "")
-LOGCMD=2>&1 | tee -a $(LOG)
-endif
+# ifneq ("$(LOG)", "")
+# LOGCMD=2>&1 | tee -a $(LOG)
+# endif
 
 default: help
 
@@ -28,22 +28,22 @@ targets:
 	@echo "$(TARGETS)"
 
 $(ALL_TARGETS):
-	(echo; echo; echo; echo "building $@") $(LOGCMD)
+	(echo; echo; echo; echo "building $@") 
 	mkdir -p $@/local
 	rsync -a --delete local/all/* $@/local
 	rsync -a --delete local/`uname -m`/* $@/local
-	docker build $(BUILDOPTS) -t squidcache/buildfarm:$(CPU)-$@ -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log $(LOGCMD)
+	docker build $(BUILDOPTS) -t squidcache/buildfarm:$(CPU)-$@ -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log
 	rm -rf $@/local
-	if test -n "$(PUSH)"; then docker push -a squidcache/buildfarm-$(CPU)-$@ ; docker push squidcache/buildfarm-$@:latest ; fi
+	if test -n "$(PUSH)"; then docker push -a squidcache/buildfarm-$(CPU)-$@ ; docker push squidcache/buildfarm-$@:latest ; fi 2>&1 | tee $@.log
 
 all: $(TARGETS)
 
-all-with-logs:
-	for t in $(TARGETS); do make $$t 2>&1 | tee $$t.log || mv $$t.log $$t-failed.log; done
+# all-with-logs:
+#	for t in $(TARGETS); do make $$t 2>&1 | tee $$t.log || mv $$t.log $$t-failed.log; done
 
 # push locally-built images to the repository
 push:
-	for d in $(TARGETS); do TAG=squidcache/buildfarm-$(CPU)-$$d ; docker push -a $$TAG; done
+	for d in $(TARGETS); do ; docker push -a squidcache/buildfarm-$(CPU)-$d; push -a squidcache/buildfarm-$d ; done
 
 push-latest:
 	docker images | grep latest | grep squidcache/buildfarm-armv7l| awk '{print $$1}'|xargs -n 1 docker push -a
