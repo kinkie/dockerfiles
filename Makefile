@@ -22,14 +22,23 @@ endif
 # LOGCMD=2>&1 | tee -a $(LOG)
 # endif
 
+# args: distro, tag
 make_manifest = \
-	docker manifest create squidcache/buildfarm-$(1):latest \
-		--amend squidcache/buildfarm-x86_64-$(1):latest \
-	$(if $(wildcard $(1)/skip-aarch64),, --amend squidcache/buildfarm-aarch64-$(1):latest) \
-	$(if $(wildcard $(1)/skip-armv7l),, --amend squidcache/buildfarm-armv7l-$(1):latest)
+	docker manifest create squidcache/buildfarm-$(1):$(2) \
+		--amend squidcache/buildfarm-x86_64-$(1):$(2) \
+	$(if $(wildcard $(1)/skip-aarch64),, --amend squidcache/buildfarm-aarch64-$(1):$(2)) \
+	$(if $(wildcard $(1)/skip-armv7l),, --amend squidcache/buildfarm-armv7l-$(1):$(2))
+
+# args: distro, tag
+push_manifest = \
+	docker manifest push squidcache/buildfarm-$(1):$(2)
+
+# args: distro, tag
+push_image = \
+     docker push squidcache/buildfarm-$(CPU)-$(1):$(2)
 
 testme:
-	$(call make_manifest,centos-stream-8)
+	$(call make_manifest,centos-stream-8,latest)
 
 default: help
 
@@ -47,26 +56,24 @@ $(ALL_TARGETS):
 	rsync -a --delete local/`uname -m`/* $@/local
 	docker build $(BUILDOPTS) -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log
 	rm -rf $@/local
-	if test -n "$(PUSH)"; then docker push squidcache/buildfarm-$(CPU)-$@:latest ; fi 2>&1 | tee -a $@.log
-	$(call make_manifest,$@)
-	if test -n "$(PUSH)"; then docker manifest push squidcache/buildfarm-$@:latest ; fi 2>&1 | tee -a $@.log
+	if test -n "$(PUSH)"; then $(call push_image,$@,latest) ; fi 2>&1 | tee -a $@.log
+	$(call make_manifest,$@,latest) 2>&1 | tee -a $@.log
+	if test -n "$(PUSH)"; then $(call push_manifest,$@,latest) ; fi 2>&1 | tee -a $@.log
 	mv $@.log $@.done.log
 
 all: $(TARGETS)
 
-# all-with-logs:
-#	for t in $(TARGETS); do make $$t 2>&1 | tee $$t.log || mv $$t.log $$t-failed.log; done
-
-# push locally-built images to the repository
 push:
-	for d in $(TARGETS); do ; docker push -a squidcache/buildfarm-$(CPU)-$d; push -a squidcache/buildfarm-$d ; done
-
-push-latest:
-	docker images | grep latest | grep squidcache/buildfarm-armv7l| awk '{print $$1}'|xargs -n 1 docker push -a
+	for d in $(TARGETS); do $(call push_image,$$d,latest); $(call make_manifest,$$d,latest); $(call push_manifest,$$d,latest); done
 
 # promote "latest" image to "stable" in the repository
 promote:
-	for d in $(TARGETS); do TAG=squidcache/buildfarm-$(CPU)-$$d; docker tag $$TAG:latest $$TAG:stable; docker push $$TAG:stable; done
+	for d in $(TARGETS); do \
+		docker tag squidcache/buildfarm-$(CPU)-$$d:latest squidcache/buildfarm-$(CPU)-$$d:stable ;\
+		$(call push_image,$$d,stable); \
+		$(call make_manifest,$$d,stable); \
+		$(call push_manifest,$$d,stable); \
+	done
 
 clean:
 	-for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
