@@ -65,6 +65,7 @@ all: $(TARGETS)
 
 push:
 	for d in $(TARGETS); do $(call push_image,$$d,latest); $(call make_manifest,$$d,latest); $(call push_manifest,$$d,latest); done
+	$(call push_manifest,gentoo,latest)
 
 # promote "latest" image to "stable" in the repository
 promote:
