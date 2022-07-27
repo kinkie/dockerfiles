@@ -48,7 +48,8 @@ RUN \
 	true
 RUN \
     test -e /usr/lib64/libatomic.so.1 -a ! -e /usr/lib64/libatomic.so && \
-    ln -s /usr/lib64/libatomic.so.1 /usr/lib64/libatomic.so
+    ln -s /usr/lib64/libatomic.so.1 /usr/lib64/libatomic.so && \
+    ldconfig
 RUN \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -m -g jenkins -G ccache jenkins && \
