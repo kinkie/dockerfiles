@@ -24,10 +24,11 @@ endif
 
 # args: distro, tag
 make_manifest = \
+    docker manifest rm squidcache/buildfarm-$(1):$(2) || true &&  \
 	docker manifest create squidcache/buildfarm-$(1):$(2) \
-		--amend squidcache/buildfarm-x86_64-$(1):$(2) \
-	$(if $(wildcard $(1)/skip-aarch64),, --amend squidcache/buildfarm-aarch64-$(1):$(2)) \
-	$(if $(wildcard $(1)/skip-armv7l),, --amend squidcache/buildfarm-armv7l-$(1):$(2))
+		squidcache/buildfarm-x86_64-$(1):$(2) \
+	$(if $(wildcard $(1)/skip-aarch64),, squidcache/buildfarm-aarch64-$(1):$(2)) \
+	$(if $(wildcard $(1)/skip-armv7l),, squidcache/buildfarm-armv7l-$(1):$(2))
 
 # args: distro, tag
 push_manifest = \
