@@ -18,6 +18,8 @@ ifneq ("$(HAVE_EXPERIMENTAL)", "")
 BUILDOPTS+=--squash
 endif
 
+DATE=$(shell date +%y%m%d)
+
 # ifneq ("$(LOG)", "")
 # LOGCMD=2>&1 | tee -a $(LOG)
 # endif
@@ -55,9 +57,9 @@ $(ALL_TARGETS):
 	mkdir -p $@/local
 	rsync -a --delete local/all/* $@/local
 	rsync -a --delete local/`uname -m`/* $@/local
-	docker build $(BUILDOPTS) -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$@:latest -f $@/Dockerfile $@ 2>&1 | tee $@.log
+	docker build $(BUILDOPTS) -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$(CPU)-$@:$(DATE) -f $@/Dockerfile $@ 2>&1 | tee $@.log
 	rm -rf $@/local
-	if test -n "$(PUSH)"; then $(call push_image,$@,latest) ; fi 2>&1 | tee -a $@.log
+	if test -n "$(PUSH)"; then $(call push_image,$@,latest) ; $(call push_image,$@,$(DATE)) ; fi 2>&1 | tee -a $@.log
 	$(call make_manifest,$@,latest) 2>&1 | tee -a $@.log
 	if test -n "$(PUSH)"; then $(call push_manifest,$@,latest) ; fi 2>&1 | tee -a $@.log
 	mv $@.log $@.done.log
