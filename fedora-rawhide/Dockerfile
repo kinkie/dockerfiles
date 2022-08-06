@@ -40,6 +40,7 @@ RUN \
 		perl-Pod-MinimumVersion \
 		pkgconf-pkg-config \
 		xz \
+		which \
 	&& \
 	yum --nogpg clean all && \
     true
