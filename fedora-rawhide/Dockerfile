@@ -49,6 +49,7 @@ RUN \
 	useradd -u 1000 -g jenkins -m jenkins && \
 	groupadd -g 1001 kinkie && \
 	useradd -u 1001 -m -g kinkie kinkie && \
+	rm -f /usr/local/bin/ccache && \
 	true
 RUN \
 	if [ "`uname -m`" = "armv7l" -a -f /usr/bin/armv7hl-redhat-linux-gnueabi-pkg-config ] ; then rm -f /usr/bin/pkg-config && ln -s /usr/bin/armv7hl-redhat-linux-gnueabi-pkg-config /usr/bin/pkg-config; fi
