@@ -1,11 +1,14 @@
 # define PUSH to push upon build
 ALL_TARGETS:=$(sort $(patsubst %/,%,$(dir $(wildcard */Dockerfile))))
+BUILDX_ALL_TARGETS:=$(patsubst %,buildx-%,$(ALL_TARGETS))
 # if a dir has a file named "skip", don't build for it
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip))),$(ALL_TARGETS))
+BUILDX_TARGETS:=$(patsubst %,buildx-%,$(TARGETS))
 CPU:=$(shell uname -m)
 # nor if it has a file "skip-`uname -m`"
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-$(CPU)))),$(TARGETS))
-.PHONY: $(ALL_TARGETS)
+HAVE_DOCKER_BUILDX:=$(shell docker buildx >/dev/null 2>&1 && docker buildx ls | grep -q squid && echo yes)
+.PHONY: $(ALL_TARGETS) $(BUILDX_ALL_TARGETS)
 
 # archutectures must be one of amd64, arm/v7l, arm64/v8
 ARCH:=$(uname -m)
@@ -13,7 +16,7 @@ ARCH:=$(uname -m)
 BUILDOPTS=
 BUILDOPTS+=--pull
 #BUILDIOTS+=--no-cache
-HAVE_EXPERIMENTAL=$(shell grep experimental /etc/docker/daemon.json)
+HAVE_EXPERIMENTAL:=$(shell grep experimental /etc/docker/daemon.json)
 ifneq ("$(HAVE_EXPERIMENTAL)", "")
 BUILDOPTS+=--squash
 endif
@@ -26,7 +29,7 @@ DATE=$(shell date +%y%m%d)
 
 # args: distro, tag
 make_manifest = \
-    docker manifest rm squidcache/buildfarm-$(1):$(2) || true &&  \
+	docker manifest rm squidcache/buildfarm-$(1):$(2) || true &&  \
 	docker manifest create squidcache/buildfarm-$(1):$(2) \
 		squidcache/buildfarm-x86_64-$(1):$(2) \
 	$(if $(wildcard $(1)/skip-aarch64),, squidcache/buildfarm-aarch64-$(1):$(2)) \
@@ -38,7 +41,7 @@ push_manifest = \
 
 # args: distro, tag
 push_image = \
-     docker push squidcache/buildfarm-$(CPU)-$(1):$(2)
+	 docker push squidcache/buildfarm-$(CPU)-$(1):$(2)
 
 testme:
 	$(call make_manifest,centos-stream-8,latest)
@@ -56,7 +59,6 @@ $(ALL_TARGETS):
 	(echo; echo; echo; echo "building $@") 
 	mkdir -p $@/local
 	rsync -a --delete local/all/* $@/local
-	rsync -a --delete local/`uname -m`/* $@/local
 	docker build $(BUILDOPTS) -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$(CPU)-$@:$(DATE) -f $@/Dockerfile $@ 2>&1 | tee $@.log
 	rm -rf $@/local
 	if test -n "$(PUSH)"; then $(call push_image,$@,latest) ; $(call push_image,$@,$(DATE)) ; fi 2>&1 | tee -a $@.log
@@ -64,7 +66,23 @@ $(ALL_TARGETS):
 	if test -n "$(PUSH)"; then $(call push_manifest,$@,latest) ; fi 2>&1 | tee -a $@.log
 	mv $@.log $@.done.log
 
+# assume it's run on amd64
+$(BUILDX_ALL_TARGETS):
+	TGT=`echo $@ | sed 's/buildx-//'` ; \
+	TAG="squidcache/buildfarm-$$TGT" ; \
+	PLATFORM="linux/amd64" ; \
+	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM,linux/i386" ; \
+	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM,linux/arm64" ; \
+	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM,linux/arm/v7" ; \
+	echo "$$TGT ; $$TAG ; $$PLATFORM" ; \
+	mkdir -p $$TGT/local ; \
+	rsync -a --delete local/all/* $$TGT/local ; \
+	docker buildx build -t "$$TAG" --platform "$$PLATFORM" --push $$TGT
+
+	
 all: $(TARGETS)
+
+all-buildx: $(BUILDX_TARGETS)
 
 push:
 	for d in $(TARGETS); do $(call push_image,$$d,latest); $(call make_manifest,$$d,latest); $(call push_manifest,$$d,latest); done
