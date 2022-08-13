@@ -1,13 +1,14 @@
+CPU:=$(shell uname -m)
 # define PUSH to push upon build
 ALL_TARGETS:=$(sort $(patsubst %/,%,$(dir $(wildcard */Dockerfile))))
-BUILDX_ALL_TARGETS:=$(patsubst %,buildx-%,$(ALL_TARGETS))
 # if a dir has a file named "skip", don't build for it
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip))),$(ALL_TARGETS))
-BUILDX_TARGETS:=$(patsubst %,buildx-%,$(TARGETS))
-CPU:=$(shell uname -m)
 # nor if it has a file "skip-`uname -m`"
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-$(CPU)))),$(TARGETS))
 HAVE_DOCKER_BUILDX:=$(shell docker buildx >/dev/null 2>&1 && docker buildx ls | grep -q squid && echo yes)
+BUILDX_ALL_TARGETS:=$(patsubst %,buildx-%,$(ALL_TARGETS))
+BUILDX_TARGETS:=$(patsubst %,buildx-%,$(TARGETS))
+PUSH_TARGETS:=$(patsubst %,push-%,$(TARGETS))
 .PHONY: $(ALL_TARGETS) $(BUILDX_ALL_TARGETS)
 
 # archutectures must be one of amd64, arm/v7l, arm64/v8
@@ -84,9 +85,15 @@ all: $(TARGETS)
 
 all-buildx: $(BUILDX_TARGETS)
 
-push:
-	for d in $(TARGETS); do $(call push_image,$$d,latest); $(call make_manifest,$$d,latest); $(call push_manifest,$$d,latest); done
+push: $(PUSH_TARGETS)
 	$(call push_manifest,gentoo,latest)
+#	for d in $(TARGETS); do $(call push_image,$$d,latest); $(call make_manifest,$$d,latest); $(call push_manifest,$$d,latest); done
+
+push-%:
+	d="$(patsubst push-%,%,$@)"; \
+	$(call push_image,$$d,latest) ; \
+	$(call make_manifest,$$d,latest) ; \
+	$(call push_manifest,$$d,latest) 
 
 # promote "latest" image to "stable" in the repository
 promote-%:
