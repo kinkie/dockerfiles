@@ -44,6 +44,10 @@ push_manifest = \
 push_image = \
 	 docker push squidcache/buildfarm-$(CPU)-$(1):$(2)
 
+prep = \
+    mkdir -p "$1/local" && \
+    rsync -a --delete local/all/* "$1/local"
+
 testme:
 	$(call make_manifest,centos-stream-8,latest)
 
@@ -57,9 +61,8 @@ targets:
 	@echo "$(TARGETS)"
 
 $(ALL_TARGETS):
-	(echo; echo; echo; echo "building $@") 
-	mkdir -p $@/local
-	rsync -a --delete local/all/* $@/local
+	@(echo; echo; echo; echo "building $@") 
+	$(call prep,$@)
 	docker build $(BUILDOPTS) -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$(CPU)-$@:$(DATE) -f $@/Dockerfile $@ 2>&1 | tee $@.log
 	rm -rf $@/local
 	if test -n "$(PUSH)"; then $(call push_image,$@,latest) ; $(call push_image,$@,$(DATE)) ; fi 2>&1 | tee -a $@.log
@@ -73,11 +76,10 @@ $(BUILDX_ALL_TARGETS):
 	TAG="squidcache/buildfarm-$$TGT" ; \
 	PLATFORM="linux/amd64" ; \
 	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM,linux/i386" ; \
-	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM,linux/arm64" ; \
+	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM,linux/arm64/v8" ; \
 	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM,linux/arm/v7" ; \
 	echo "$$TGT ; $$TAG ; $$PLATFORM" ; \
-	mkdir -p $$TGT/local ; \
-	rsync -a --delete local/all/* $$TGT/local ; \
+    $(call prep,$$TGT) ; \
 	docker buildx build -t "$$TAG" --platform "$$PLATFORM" --push $$TGT
 
 	
@@ -88,6 +90,11 @@ all-buildx: $(BUILDX_TARGETS)
 push: $(PUSH_TARGETS)
 	$(call push_manifest,gentoo,latest)
 #	for d in $(TARGETS); do $(call push_image,$$d,latest); $(call make_manifest,$$d,latest); $(call push_manifest,$$d,latest); done
+
+prep-%:
+	echo $@
+	d="$(patsubst prep-%,%,$@)"; \
+	$(call prep,$$d)
 
 push-%:
 	d="$(patsubst push-%,%,$@)"; \
