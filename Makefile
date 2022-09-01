@@ -9,7 +9,7 @@ HAVE_DOCKER_BUILDX:=$(shell docker buildx >/dev/null 2>&1 && docker buildx ls | 
 BUILDX_ALL_TARGETS:=$(patsubst %,buildx-%,$(ALL_TARGETS))
 BUILDX_TARGETS:=$(patsubst %,buildx-%,$(TARGETS))
 PUSH_TARGETS:=$(patsubst %,push-%,$(TARGETS))
-.PHONY: $(ALL_TARGETS) $(BUILDX_ALL_TARGETS)
+.PHONY: $(ALL_TARGETS) $(BUILDX_ALL_TARGETS) combination-filter
 
 # archutectures must be one of amd64, arm/v7l, arm64/v8
 ARCH:=$(uname -m)
@@ -59,6 +59,9 @@ list:
 
 targets:
 	@echo "$(TARGETS)"
+
+combination-filter:
+	@for OS in $(TARGETS); do for CPU in armv7l aarch64 i386 amd64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
 
 $(ALL_TARGETS):
 	@(echo; echo; echo; echo "building $@") 
