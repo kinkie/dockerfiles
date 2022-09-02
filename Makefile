@@ -9,6 +9,7 @@ HAVE_DOCKER_BUILDX:=$(shell docker buildx >/dev/null 2>&1 && docker buildx ls | 
 BUILDX_ALL_TARGETS:=$(patsubst %,buildx-%,$(ALL_TARGETS))
 BUILDX_TARGETS:=$(patsubst %,buildx-%,$(TARGETS))
 PUSH_TARGETS:=$(patsubst %,push-%,$(TARGETS))
+IS_PARALLEL=$(if $(findstring jobserver,$(MFLAGS)),1)
 .PHONY: $(ALL_TARGETS) $(BUILDX_ALL_TARGETS) combination-filter
 
 # archutectures must be one of amd64, arm/v7l, arm64/v8
@@ -154,3 +155,4 @@ help:
 	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs"
 	@echo "BUILDOPTS: $(BUILDOPTS)"
 	@echo "images that can be built: $(TARGETS)"
+
