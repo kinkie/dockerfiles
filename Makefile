@@ -45,8 +45,8 @@ push_image = \
 	 docker push squidcache/buildfarm-$(CPU)-$(1):$(2)
 
 prep = \
-    mkdir -p "$1/local" && \
-    rsync -a --delete local/all/* "$1/local"
+	mkdir -p "$1/local" && \
+	rsync -a --delete local/all/* "$1/local"
 
 testme:
 	$(call make_manifest,centos-stream-8,latest)
@@ -75,15 +75,15 @@ $(ALL_TARGETS):
 
 # assume it's run on amd64
 $(BUILDX_ALL_TARGETS):
-	TGT=`echo $@ | sed 's/buildx-//'` ; \
+	@TGT=`echo $@ | sed 's/buildx-//'` ; \
 	TAG="squidcache/buildfarm-$$TGT" ; \
 	PLATFORM="linux/amd64" ; \
 	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM,linux/i386" ; \
 	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM,linux/arm64/v8" ; \
 	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM,linux/arm/v7" ; \
-	echo "$$TGT ; $$TAG ; $$PLATFORM" ; \
-    $(call prep,$$TGT) ; \
-	docker buildx build -t "$$TAG" --platform "$$PLATFORM" --push $$TGT
+	echo "building $$TGT on $$PLATFORM , tag $$TAG. Output in $@.log" ; \
+	$(call prep,$$TGT) >$@.log 2>&1 ; \
+	docker buildx build -t "$$TAG" --platform "$$PLATFORM" --push $$TGT >>$@.log 2>&1
 
 	
 all: $(TARGETS)
