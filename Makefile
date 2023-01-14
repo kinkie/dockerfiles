@@ -84,7 +84,8 @@ $(BUILDX_ALL_TARGETS):
 	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM,linux/arm/v7" ; \
 	echo "building $$TGT on $$PLATFORM , tag $$TAG. Output in $@.log" ; \
 	$(call prep,$$TGT) >$@.log 2>&1 ; \
-	docker buildx build -t "$$TAG" --platform "$$PLATFORM" --push $$TGT >>$@.log 2>&1
+	if docker buildx build -t "$$TAG" --platform "$$PLATFORM" --push $$TGT >>$@.log 2>&1 ; \
+	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.log"; mv $@.log $@.fail.log; fi
 
 	
 all: $(TARGETS)

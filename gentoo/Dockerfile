@@ -10,13 +10,23 @@ RUN \
     sed -i~ 's/rsync.gentoo.org/rsync.uk.gentoo.org/' \
         /usr/share/portage/config/repos.conf && \
     cp /etc/portage/make.conf /etc/portage/make.conf.bak && \
-    echo 'FEATURES="-sandbox -ipc-sandbox -network-sandbox -pid-sandbox -usersandbox"' >>/etc/portage/make.conf && \
     echo 'USE="-X -alsa* -apache2* -fortran -office_implementation_libreoffice -ada* -lcd* -libreoffice* -video* -xtables*"' >>/etc/portage/make.conf && \
-    sed -i~ 's/FEATURES=.*//' /etc/portage/make.conf && \
     if [ "`uname -m`" = "armv7l" ]; then echo 'EMERGE_DEFAULT_OPTS="--jobs 1"' >> /etc/portage/make.conf ; echo 'MAKEOPTS="-j2"' >> /etc/portage/make.conf; fi && \
+    true
+#    sed -i~ 's/FEATURES=.*//' /etc/portage/make.conf && \
+#    echo 'FEATURES="-sandbox -ipc-sandbox -network-sandbox -pid-sandbox -usersandbox"' >>/etc/portage/make.conf && \
+RUN \
     emaint sync -a >/dev/null && \
     eselect news read >/dev/null && \
-    emerge -q --update --deep --with-bdeps=y --newuse @world && \
+    true
+# RUN \
+#     emerge -q --update --deep --with-bdeps=y --changed-use sys-devel/gcc && \
+#     true
+# next step segfaults on gcc-11.3
+#RUN \
+#    emerge -q --update --deep --with-bdeps=y --changed-use @world && \
+#    true
+RUN \
     emerge -q \
         dev-util/ccache \
         dev-util/cppunit \
