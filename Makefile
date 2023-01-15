@@ -62,7 +62,7 @@ targets:
 	@echo "$(TARGETS)"
 
 combination-filter:
-	@for OS in $(TARGETS); do for CPU in armv7l aarch64 i386 amd64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
+	@for OS in $(TARGETS) gentoo; do for CPU in armv7l aarch64 i386 amd64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
 
 $(ALL_TARGETS):
 	@(echo; echo; echo; echo "building $@") 
