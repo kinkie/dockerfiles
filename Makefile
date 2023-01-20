@@ -77,14 +77,14 @@ $(ALL_TARGETS):
 # assume it's run on amd64
 $(BUILDX_ALL_TARGETS):
 	@TGT=`echo $@ | sed 's/buildx-//'` ; \
-	TAG="squidcache/buildfarm-$$TGT" ; \
+	IMAGELABEL="squidcache/buildfarm-$$TGT:$${TAG:-latest}" ; \
 	PLATFORM="linux/amd64" ; \
 	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM,linux/i386" ; \
 	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM,linux/arm64/v8" ; \
 	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM,linux/arm/v7" ; \
-	echo "building $$TGT on $$PLATFORM , tag $$TAG. Output in $@.log" ; \
+	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL. Output in $@.log" ; \
 	$(call prep,$$TGT) >$@.log 2>&1 ; \
-	if docker buildx build -t "$$TAG" --platform "$$PLATFORM" --push $$TGT >>$@.log 2>&1 ; \
+	if docker buildx build -t "$$IMAGELABEL" --platform "$$PLATFORM" --push $$TGT >>$@.log 2>&1 ; \
 	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.log"; mv $@.log $@.fail.log; fi
 
 	
@@ -110,16 +110,19 @@ push-%:
 # promote "latest" image to "stable" in the repository
 promote-%:
 	d="$(patsubst promote-%,%,$@)"; \
-	docker pull squidcache/buildfarm-$(CPU)-$$d:stable && \
-	docker tag squidcache/buildfarm-$(CPU)-$$d:stable squidcache/buildfarm-$(CPU)-$$d:oldstable ;\
-	docker pull squidcache/buildfarm-$(CPU)-$$d:latest && \
-	docker tag squidcache/buildfarm-$(CPU)-$$d:latest squidcache/buildfarm-$(CPU)-$$d:stable ;\
-	$(call push_image,$$d,oldstable); \
-	$(call push_image,$$d,stable); \
-	$(call make_manifest,$$d,oldstable); \
-	$(call push_manifest,$$d,oldstable); \
-	$(call make_manifest,$$d,stable); \
-	$(call push_manifest,$$d,stable)
+    docker buildx imagetools create -t squidcache/buildfarm-$$d:oldstable squidcache/buildfarm-$$d:stable ; \
+	docker buildx imagetools create -t squidcache/buildfarm-$$d:stable squidcache/buildfarm-$$d:latest 
+
+# 	docker pull squidcache/buildfarm-$(CPU)-$$d:stable && \
+# 	docker tag squidcache/buildfarm-$(CPU)-$$d:stable squidcache/buildfarm-$(CPU)-$$d:oldstable ;\
+# 	docker pull squidcache/buildfarm-$(CPU)-$$d:latest && \
+# 	docker tag squidcache/buildfarm-$(CPU)-$$d:latest squidcache/buildfarm-$(CPU)-$$d:stable ;\
+# 	$(call push_image,$$d,oldstable); \
+# 	$(call push_image,$$d,stable); \
+# 	$(call make_manifest,$$d,oldstable); \
+# 	$(call push_manifest,$$d,oldstable); \
+# 	$(call make_manifest,$$d,stable); \
+# 	$(call push_manifest,$$d,stable)
 
 promote:
 	for d in $(TARGETS); do \
