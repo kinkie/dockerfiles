@@ -1,7 +1,7 @@
 CPU:=$(shell uname -m)
 # define PUSH to push upon build
 ALL_TARGETS:=$(sort $(patsubst %/,%,$(dir $(wildcard */Dockerfile))))
-# if a dir has a file named "skip", don't build for it
+# if a dir has a file named "skip" or "skip-build" (enforced later), don't build for it
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip))),$(ALL_TARGETS))
 # nor if it has a file "skip-`uname -m`"
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-$(CPU)))),$(TARGETS))
@@ -62,7 +62,7 @@ targets:
 	@echo "$(TARGETS)"
 
 combination-filter:
-	@for OS in $(TARGETS) gentoo; do for CPU in armv7l aarch64 i386 amd64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
+	@for OS in $(TARGETS) ; do for CPU in armv7l aarch64 i386 amd64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
 
 $(ALL_TARGETS):
 	@(echo; echo; echo; echo "building $@") 
@@ -90,10 +90,12 @@ $(BUILDX_ALL_TARGETS):
 	
 all: $(TARGETS)
 
-all-buildx: $(BUILDX_TARGETS)
+all-buildx: $(filter-out $(patsubst %/,buildx-%,$(dir $(wildcard */skip-build))),$(BUILDX_TARGETS))
+
+#all-buildx: $(BUILDX_TARGETS)
 
 push: $(PUSH_TARGETS)
-	$(call push_manifest,gentoo,latest)
+#	$(call push_manifest,gentoo,latest)
 #	for d in $(TARGETS); do $(call push_image,$$d,latest); $(call make_manifest,$$d,latest); $(call push_manifest,$$d,latest); done
 
 prep-%:
