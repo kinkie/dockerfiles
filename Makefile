@@ -113,29 +113,9 @@ promote-%:
     docker buildx imagetools create -t squidcache/buildfarm-$$d:oldstable squidcache/buildfarm-$$d:stable ; \
 	docker buildx imagetools create -t squidcache/buildfarm-$$d:stable squidcache/buildfarm-$$d:latest 
 
-# 	docker pull squidcache/buildfarm-$(CPU)-$$d:stable && \
-# 	docker tag squidcache/buildfarm-$(CPU)-$$d:stable squidcache/buildfarm-$(CPU)-$$d:oldstable ;\
-# 	docker pull squidcache/buildfarm-$(CPU)-$$d:latest && \
-# 	docker tag squidcache/buildfarm-$(CPU)-$$d:latest squidcache/buildfarm-$(CPU)-$$d:stable ;\
-# 	$(call push_image,$$d,oldstable); \
-# 	$(call push_image,$$d,stable); \
-# 	$(call make_manifest,$$d,oldstable); \
-# 	$(call push_manifest,$$d,oldstable); \
-# 	$(call make_manifest,$$d,stable); \
-# 	$(call push_manifest,$$d,stable)
-
 promote:
 	for d in $(TARGETS); do \
-		docker pull squidcache/buildfarm-$(CPU)-$$d:stable && \
-		docker tag squidcache/buildfarm-$(CPU)-$$d:stable squidcache/buildfarm-$(CPU)-$$d:oldstable ;\
-		docker pull squidcache/buildfarm-$(CPU)-$$d:latest && \
-		docker tag squidcache/buildfarm-$(CPU)-$$d:latest squidcache/buildfarm-$(CPU)-$$d:stable ;\
-		$(call push_image,$$d,oldstable); \
-		$(call push_image,$$d,stable); \
-		$(call make_manifest,$$d,oldstable); \
-		$(call push_manifest,$$d,oldstable); \
-		$(call make_manifest,$$d,stable); \
-		$(call push_manifest,$$d,stable); \
+		make promote-$$d ; \
 	done
 
 clean:
@@ -160,3 +140,30 @@ help:
 	@echo "BUILDOPTS: $(BUILDOPTS)"
 	@echo "images that can be built: $(TARGETS)"
 
+### old stuff
+#promote-%:
+#	d="$(patsubst promote-%,%,$@)"; \
+# 	docker pull squidcache/buildfarm-$(CPU)-$$d:stable && \
+# 	docker tag squidcache/buildfarm-$(CPU)-$$d:stable squidcache/buildfarm-$(CPU)-$$d:oldstable ;\
+# 	docker pull squidcache/buildfarm-$(CPU)-$$d:latest && \
+# 	docker tag squidcache/buildfarm-$(CPU)-$$d:latest squidcache/buildfarm-$(CPU)-$$d:stable ;\
+# 	$(call push_image,$$d,oldstable); \
+# 	$(call push_image,$$d,stable); \
+# 	$(call make_manifest,$$d,oldstable); \
+# 	$(call push_manifest,$$d,oldstable); \
+# 	$(call make_manifest,$$d,stable); \
+# 	$(call push_manifest,$$d,stable)
+
+#promote:
+#	for d in $(TARGETS); do \
+#		docker pull squidcache/buildfarm-$(CPU)-$$d:stable && \
+#		docker tag squidcache/buildfarm-$(CPU)-$$d:stable squidcache/buildfarm-$(CPU)-$$d:oldstable ;\
+#		docker pull squidcache/buildfarm-$(CPU)-$$d:latest && \
+#		docker tag squidcache/buildfarm-$(CPU)-$$d:latest squidcache/buildfarm-$(CPU)-$$d:stable ;\
+#		$(call push_image,$$d,oldstable); \
+#		$(call push_image,$$d,stable); \
+#		$(call make_manifest,$$d,oldstable); \
+#		$(call push_manifest,$$d,oldstable); \
+#		$(call make_manifest,$$d,stable); \
+#		$(call push_manifest,$$d,stable); \
+#	done
