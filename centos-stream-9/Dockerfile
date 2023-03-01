@@ -24,6 +24,7 @@ RUN \
         gnutls-devel \
         gnutls-utils \
         libatomic \
+		libatomic-static \
         libcap \
         libcap-devel \
         libdb-devel \
@@ -47,9 +48,10 @@ RUN \
 	rm -f /etc/profile.d/ccache* && \
 	true
 RUN \
-    test -e /usr/lib64/libatomic.so.1 -a ! -e /usr/lib64/libatomic.so && \
-    ln -s /usr/lib64/libatomic.so.1 /usr/lib64/libatomic.so && \
-    ldconfig
+	test -e /usr/lib64/libatomic.so.1 -a ! -e /usr/lib64/libatomic.so && \
+	(cd /usr/lib64; ln -s libatomic.so.1 libatomic.so) && \
+	ln -s `rpm -ql libatomic-static | grep -F libatomic.a` /usr/lib64/libatomic.a && \
+	ldconfig -v
 RUN \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -m -g jenkins -G ccache jenkins && \
