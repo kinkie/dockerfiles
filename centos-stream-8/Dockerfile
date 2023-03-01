@@ -5,11 +5,11 @@ FROM quay.io/centos/centos:stream8
 MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
-    dnf -y install dnf-plugins-core && \
+	dnf -y install dnf-plugins-core && \
 	dnf install -y epel-release 'dnf-command(config-manager)' && \
-    dnf config-manager --set-enabled powertools && \
+	dnf config-manager --set-enabled powertools && \
 	dnf update -y && \
-    dnf makecache && \
+	dnf makecache && \
 	dnf install -y \
 		autoconf \
 		automake \
@@ -21,6 +21,7 @@ RUN \
 		curl \
 		ed \
 		expat-devel \
+		file \
 		git \
 		gnutls-devel \
 		gnutls-utils \
@@ -48,6 +49,11 @@ RUN \
 	dnf clean all && \
 	rm -f /etc/profile.d/ccache* && \
 	true
+RUN \
+	test -e /usr/lib64/libatomic.so.1 -a ! -e /usr/lib64/libatomic.so && \
+	(cd /usr/lib64; ln -s libatomic.so.1 libatomic.so) && \
+	ln -s `rpm -ql libatomic-static | grep -F libatomic.a` /usr/lib64/libatomic.a && \
+	ldconfig -v
 RUN \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -m -g jenkins -G ccache jenkins && \
