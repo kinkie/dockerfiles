@@ -13,7 +13,7 @@ RUN \
 		cppunit-devel \
 		curl \
 		ed \
-		gcc-c++ \
+		gcc8-c++ \
 		git \
 		gnutls-devel \
 		gnutls \
@@ -33,3 +33,10 @@ RUN \
 	zypper --non-interactive clean && \
 	useradd -m jenkins && \
 	useradd -m kinkie
+RUN \
+	update-alternatives --install /usr/bin/g++ c++ /usr/bin/g++-8 20 && \
+	update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-8 20 && \
+	update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 20 && \
+	true
+USER jenkins
+CMD ["/bin/bash", "-l"]
