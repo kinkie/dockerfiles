@@ -18,7 +18,7 @@ RUN \
 		clang \
 		curl \
 		ed \
-		g++ \
+		g++-8 \
 		git \
 		gnutls-bin \
 		libcap-dev \
@@ -45,6 +45,10 @@ RUN \
 	groupadd -g 1001 kinkie && \
 	useradd -u 1001 -m -g kinkie kinkie && \
 	true
-
+RUN \
+	update-alternatives --install /usr/bin/g++ c++ /usr/bin/g++-8 20 && \
+	update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-8 20 && \
+	update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 20 && \
+	true
 USER jenkins
 CMD ["/bin/bash", "-l"]
