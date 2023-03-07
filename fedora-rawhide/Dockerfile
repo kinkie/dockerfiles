@@ -19,6 +19,7 @@ RUN \
 		cppunit \
 		cppunit-devel \
 		curl \
+		diffutils \
 		ed \
 		expat-devel \
 		gcc-c++ \
