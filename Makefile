@@ -61,6 +61,9 @@ list:
 targets:
 	@echo "$(TARGETS)"
 
+buildx-targets:
+	@echo "$(BUILDX_TARGETS)"
+
 combination-filter:
 	@for OS in $(TARGETS) ; do for CPU in armv7l aarch64 i386 amd64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
 
@@ -87,12 +90,11 @@ $(BUILDX_ALL_TARGETS):
 	if docker buildx build -t "$$IMAGELABEL" --platform "$$PLATFORM" --push $$TGT >>$@.log 2>&1 ; \
 	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.fail.log"; mv $@.log $@.fail.log; fi
 
-	
-all: $(TARGETS)
 
-all-buildx: $(filter-out $(patsubst %/,buildx-%,$(dir $(wildcard */skip-build))),$(BUILDX_TARGETS))
+# buildx all
+all: $(filter-out $(patsubst %/,buildx-%,$(dir $(wildcard */skip-build))),$(BUILDX_TARGETS))
 
-#all-buildx: $(BUILDX_TARGETS)
+all-legacy: $(TARGETS)
 
 push: $(PUSH_TARGETS)
 #	$(call push_manifest,gentoo,latest)
