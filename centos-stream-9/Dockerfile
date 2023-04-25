@@ -24,7 +24,7 @@ RUN \
         gnutls-devel \
         gnutls-utils \
         libatomic \
-		libatomic-static \
+		gcc-toolset-12-libatomic-devel \
         libcap \
         libcap-devel \
         libdb-devel \

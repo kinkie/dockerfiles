@@ -22,6 +22,7 @@ RUN \
 		g++ \
 		git \
 		gnutls-bin \
+		icecc \
 		libcap-dev \
 		libcppunit-dev \
 		libexpat-dev \

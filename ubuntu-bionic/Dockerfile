@@ -21,6 +21,7 @@ RUN \
 		g++-8 \
 		git \
 		gnutls-bin \
+		icecc \
 		libcap-dev \
 		libcppunit-dev \
 		libexpat-dev \

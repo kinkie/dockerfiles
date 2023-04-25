@@ -15,11 +15,13 @@ RUN \
 		curl \
 		diffutils \
 		ed \
+		find \
 		gcc-c++ \
 		git \
 		gnutls-devel \
 		gnutls \
 		gzip \
+        icecream \
 		libcap-devel \
 		libexpat-devel \
 		libltdl7 \

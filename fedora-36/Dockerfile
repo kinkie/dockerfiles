@@ -22,6 +22,7 @@ RUN \
 		git \
 		gnutls-devel \
 		gnutls-utils \
+		icecream \
 		libatomic \
 		libatomic-static \
 		libcap-devel \

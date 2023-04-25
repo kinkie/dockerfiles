@@ -16,12 +16,14 @@ RUN \
 		cppunit \
 		cppunit-devel \
 		curl \
+		diffutils \
 		ed \
 		expat-devel \
 		gcc-c++ \
 		git \
 		gnutls-devel \
 		gnutls-utils \
+		icecream \
 		libatomic \
 		libatomic-static \
 		libcap-devel \

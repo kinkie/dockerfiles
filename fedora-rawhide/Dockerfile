@@ -26,6 +26,7 @@ RUN \
 		git \
 		gnutls-devel \
 		gnutls-utils \
+		icecream \
 		libatomic \
 		libcap-devel \
 		libtdb-devel \
@@ -44,7 +45,7 @@ RUN \
 		which \
 	&& \
 	yum --nogpg clean all && \
-    true
+	true
 RUN \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -g jenkins -m jenkins && \
