@@ -1,5 +1,5 @@
 # squid build image, plus wine development
-FROM squidcache/buildfarm-ubuntu-focal:latest
+FROM squidcache/buildfarm-ubuntu-jammy:latest
 MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
 USER root
 RUN \
