@@ -10,7 +10,7 @@ BUILDX_ALL_TARGETS:=$(patsubst %,buildx-%,$(ALL_TARGETS))
 BUILDX_TARGETS:=$(patsubst %,buildx-%,$(TARGETS))
 PUSH_TARGETS:=$(patsubst %,push-%,$(TARGETS))
 IS_PARALLEL=$(if $(findstring jobserver,$(MFLAGS)),1)
-.PHONY: $(ALL_TARGETS) $(BUILDX_ALL_TARGETS) combination-filter
+.PHONY: $(ALL_TARGETS) $(BUILDX_ALL_TARGETS) combination-filter update-image
 
 # archutectures must be one of amd64, arm/v7l, arm64/v8
 ARCH:=$(uname -m)
@@ -138,6 +138,14 @@ clean-all-images: clean-images clean-dangling-images
 	docker container prune -f
 	docker images | grep -v -F -e REPOSITORY -e '<none>' | awk '{print $$1 ":" $$2 }' | uniq | xargs -r docker rmi
 	docker images | grep -v -F -e REPOSITORY | awk '{print $$3}' | uniq | xargs -r docker rmi
+
+## todo: need to call prep to update local
+update-image:
+	@if [ -z "$(DISTRO)" ]; then echo "use: make update-image DISTRO=distro-version" ; exit 1; fi
+	PLATFORM="$$(docker manifest inspect squidcache/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | sed 's/"//g;s/\/$$//' | tr '\n'  ',' | sed 's/,$$//;s/arm$$/arm\/v7l/')"; \
+    echo "platforms: $$PLATFORM"; \
+    $(call prep,update-image); \
+    docker buildx build -t "squidcache/buildfarm-$(DISTRO)" --platform "$$PLATFORM" --push --build-arg distro=$(DISTRO) update-image
 
 help:
 	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs"
