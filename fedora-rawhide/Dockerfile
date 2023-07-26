@@ -9,8 +9,8 @@ LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 #		libdb4-devel \
 ADD local/* /usr/local/bin/
 RUN \
-	dnf update -y --nogpg && \
-	dnf install -y --nogpg \
+	dnf update -y && \
+	dnf install -y \
 		autoconf \
 		automake \
 		bzip2 \
@@ -44,7 +44,7 @@ RUN \
 		xz \
 		which \
 	&& \
-	yum --nogpg clean all && \
+	yum clean all && \
 	true
 RUN \
 	groupadd -g 1000 jenkins && \
