@@ -46,7 +46,8 @@ RUN \
 	&& \
 	apt-get autoremove -y && \
 	apt-get clean -y && \
-	userdel -r ubuntu && \
+	if id ubuntu >/dev/null; then userdel -r ubuntu ; fi && \
+	if getent group ubuntu >/dev/null; then groupdel ubuntu ; fi && \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -g jenkins -m jenkins && \
 	groupadd -g 1001 kinkie && \

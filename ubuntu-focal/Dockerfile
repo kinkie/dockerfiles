@@ -6,8 +6,11 @@ ARG version=focal
 FROM ${distro}:${version}
 MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
+# ENV http_proxy=""
+#	sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list && \
 RUN \
-    sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' sources.list && \
+	apt-get update && \
+	apt-get upgrade -y apt && \
 	apt-get update && \
 	apt-get upgrade --no-install-recommends -y && \
 	DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -43,6 +46,8 @@ RUN \
 	&& \
 	apt-get autoremove -y && \
 	apt-get clean -y && \
+	if id ubuntu >/dev/null; then userdel -r ubuntu ; fi && \
+	if getent group ubuntu >/dev/null; then groupdel ubuntu ; fi && \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -g jenkins -m jenkins && \
 	groupadd -g 1001 kinkie && \
