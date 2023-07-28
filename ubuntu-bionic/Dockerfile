@@ -6,8 +6,8 @@ ARG version=bionic
 FROM ${distro}:${version}
 MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
+#	sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list && \
 RUN \
-    sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' sources.list && \
 	apt-get update && \
 	apt-get upgrade --no-install-recommends -y && \
 	DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
@@ -24,9 +24,11 @@ RUN \
 		gnutls-bin \
 		icecc \
 		libcap-dev \
+		libc6-dev \
 		libcppunit-dev \
 		libexpat-dev \
 		libgnutls28-dev \
+		libicu-dev \
 		libltdl-dev \
 		libssl-dev \
 		libtdb-dev \
@@ -39,9 +41,12 @@ RUN \
 		po4a \
 		translate-toolkit \
 		xz-utils \
+		zlib1g-dev \
 	&& \
 	apt-get autoremove -y && \
 	apt-get clean -y && \
+	if id ubuntu >/dev/null; then userdel -r ubuntu ; fi && \
+	if getent group ubuntu >/dev/null; then groupdel ubuntu ; fi && \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -g jenkins -m jenkins && \
 	groupadd -g 1001 kinkie && \
