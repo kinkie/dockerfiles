@@ -6,8 +6,11 @@ ARG version=lunar
 FROM ${distro}:${version}
 MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
+# ENV http_proxy=""
+#	sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list && \
 RUN \
-    sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' sources.list && \
+	apt-get update && \
+	apt-get upgrade -y apt && \
 	apt-get update && \
 	apt-get upgrade --no-install-recommends -y && \
 	DEBIAN_FRONTEND=noninteractive apt-get install -y \
