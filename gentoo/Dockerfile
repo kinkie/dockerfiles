@@ -26,7 +26,6 @@ RUN \
         net-nds/openldap \
         sys-apps/ed \
         sys-devel/clang \
-        sys-devel/icecream \
         sys-libs/libcap \
         sys-libs/tdb \
         gentoolkit \
