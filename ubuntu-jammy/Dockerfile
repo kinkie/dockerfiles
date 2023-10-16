@@ -1,6 +1,7 @@
 #template dockerfile to build a centos-based build image
 # run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
 
+# Supported unti 2032.04
 ARG distro=ubuntu
 ARG version=jammy
 FROM ${distro}:${version}

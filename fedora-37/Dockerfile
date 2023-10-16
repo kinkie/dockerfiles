@@ -1,4 +1,5 @@
 # NOT WORKING! there are package conflicst when updating
+# supported until 2023-11-14
 
 ARG DISTRO=fedora
 ARG VERSION=37
