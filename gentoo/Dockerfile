@@ -15,7 +15,7 @@ RUN \
     true
 RUN \
     emerge-webrsync && \
-    emaint sync -a >/dev/null && \
+    emaint sync -ay >/dev/null && \
     eselect news read >/dev/null && \
     true
 RUN \
