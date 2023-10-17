@@ -20,7 +20,7 @@ BUILDOPTS+=--pull
 #BUILDIOTS+=--no-cache
 HAVE_EXPERIMENTAL:=$(shell grep experimental /etc/docker/daemon.json)
 ifneq ("$(HAVE_EXPERIMENTAL)", "")
-BUILDOPTS+=--squash
+# BUILDOPTS+=--squash
 endif
 
 DATE=$(shell date +%y%m%d)
@@ -87,7 +87,8 @@ $(BUILDX_ALL_TARGETS):
 	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm/v7" ; \
 	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL. Output in $@.log" ; \
 	$(call prep,$$TGT) >$@.log 2>&1 ; \
-	if docker buildx build $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" --platform "$$PLATFORM" --push $$TGT >>$@.log 2>&1 ; \
+    echo "docker buildx build --squash $${proxy:+--build-arg http_proxy=$$proxy} -t \"$$IMAGELABEL\" --platform \"$$PLATFORM\" --push $$TGT" && \
+	if docker buildx build --squash $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" --platform "$$PLATFORM" --push $$TGT >>$@.log 2>&1 ; \
 	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.fail.log"; mv $@.log $@.fail.log; fi
 
 
@@ -141,11 +142,11 @@ clean-all-images: clean-images clean-dangling-images
 
 ## todo: need to call prep to update local
 update-image:
-	@if [ -z "$(DISTRO)" ]; then echo "use: make update-image DISTRO=distro-version" ; exit 1; fi
-	PLATFORM="$$(docker manifest inspect squidcache/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | sed 's/"//g;s/\/$$//' | tr '\n'  ',' | sed 's/,$$//;s/arm$$/arm\/v7l/')"; \
+	@if [ -z "$(DISTRO)" ]; then echo "use: make update-image DISTRO=distribution" ; exit 1; fi
+	PLATFORM="$$(docker manifest inspect squidcache/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | grep -v unknown | sed 's/"//g;s/\/$$//' | tr '\n'  ',' | sed 's/,$$//;s/arm$$/arm\/v7l/')"; \
     echo "platforms: $$PLATFORM"; \
     $(call prep,update-image); \
-    docker buildx build -t "squidcache/buildfarm-$(DISTRO)" --platform "$$PLATFORM" --push --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
+    docker buildx build -t "squidcache/buildfarm-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
 
 help:
 	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs"

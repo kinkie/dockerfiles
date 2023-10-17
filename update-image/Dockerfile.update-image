@@ -6,17 +6,23 @@ ADD local/* /usr/local/bin/
 
 USER root
 RUN \
-    if [ -n "$(which apt-get)" ]; then \
+    if [ -x /usr/bin/apt-get ]; then \
         apt-get -y update && \
         apt-get -y upgrade --no-install-recommends -y && \
         apt-get autoremove -y && \
         apt-get clean -y && \
         true ; \
-    elif [ -n "$(which dnf)" ]; then \
-        dnf dnf -y upgrade && \
+    elif [ -x /usr/bin/dnf ]; then \
+        dnf -y upgrade && \
+        dnf -y autoremove && \
         true ; \
+    elif [ -x /usr/bin/zypper ]; then \
+        zypper up -y && zypper clean -y; \
+    elif [ -x /usr/bin/emerge ]; then \
+        exit 1; \
     else \
-        false ;\
+        echo "could not identify the update system" ; \
+        exit 1 ; \
     fi
 
 USER jenkins
