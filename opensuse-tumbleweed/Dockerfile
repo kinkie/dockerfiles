@@ -21,7 +21,6 @@ RUN \
 		gnutls-devel \
 		gnutls \
 		gzip \
-        icecream \
 		libcap-devel \
 		libexpat-devel \
 		libltdl7 \
