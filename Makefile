@@ -1,4 +1,5 @@
 CPU:=$(shell uname -m)
+SYSTEM:=$(shell uname -s)
 # define PUSH to push upon build
 ALL_TARGETS:=$(sort $(patsubst %/,%,$(dir $(wildcard */Dockerfile))))
 # if a dir has a file named "skip" or "skip-build" (enforced later), don't build for it
@@ -18,9 +19,10 @@ ARCH:=$(uname -m)
 BUILDOPTS=
 BUILDOPTS+=--pull
 #BUILDIOTS+=--no-cache
-HAVE_EXPERIMENTAL:=$(shell grep experimental /etc/docker/daemon.json)
-ifneq ("$(HAVE_EXPERIMENTAL)", "")
-# BUILDOPTS+=--squash
+ifeq ("$(SYSTEM)", "Darwin")
+EXTRATAG:=-mac
+else
+EXTRATAG:=
 endif
 
 DATE=$(shell date +%y%m%d)
@@ -43,7 +45,7 @@ push_manifest = \
 
 # args: distro, tag
 push_image = \
-	 docker push squidcache/buildfarm-$(CPU)-$(1):$(2)
+	 docker push squidcache/buildfarm$(EXTRATAG)-$(CPU)-$(1):$(2)
 
 prep = \
 	mkdir -p "$1/local" && \
@@ -70,7 +72,7 @@ combination-filter:
 $(ALL_TARGETS):
 	@(echo; echo; echo; echo "building $@") 
 	$(call prep,$@)
-	docker build $(BUILDOPTS) -t squidcache/buildfarm-$(CPU)-$@:latest -t squidcache/buildfarm-$(CPU)-$@:$(DATE) -f $@/Dockerfile $@ 2>&1 | tee $@.log
+	docker build $(BUILDOPTS) -t squidcache/buildfarm$(EXTRATAG)-$(CPU)-$@:latest -t squidcache/buildfarm$(EXTRATAG)-$(CPU)-$@:$(DATE) -f $@/Dockerfile $@ 2>&1 | tee $@.log
 	rm -rf $@/local
 	if test -n "$(PUSH)"; then $(call push_image,$@,latest) ; $(call push_image,$@,$(DATE)) ; fi 2>&1 | tee -a $@.log
 	$(call make_manifest,$@,latest) 2>&1 | tee -a $@.log
@@ -80,15 +82,16 @@ $(ALL_TARGETS):
 # assume it's run on amd64
 $(BUILDX_ALL_TARGETS):
 	@TGT=`echo $@ | sed 's/buildx-//'` ; \
-	IMAGELABEL="squidcache/buildfarm-$$TGT:$${TAG:-latest}" ; \
+	IMAGELABEL="squidcache/buildfarm$(EXTRATAG)-$$TGT:$${TAG:-latest}" ; \
 	test -e $$TGT/skip-amd64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/amd64" ; \
 	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/i386" ; \
 	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm64/v8" ; \
 	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm/v7" ; \
 	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL. Output in $@.log" ; \
+    if [ "$(SYSTEM)" != "Darwin" ]; then PLATFORM="--platform \'$$PLATFORM\'"; else PLATFORM=""; fi; \
 	$(call prep,$$TGT) >$@.log 2>&1 ; \
-    echo "docker buildx build --squash $${proxy:+--build-arg http_proxy=$$proxy} -t \"$$IMAGELABEL\" --platform \"$$PLATFORM\" --push $$TGT" && \
-	if docker buildx build --squash $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" --platform "$$PLATFORM" --push $$TGT >>$@.log 2>&1 ; \
+    echo "docker buildx build $${proxy:+--build-arg http_proxy=$$proxy} -t \"$$IMAGELABEL\" $$PLATFORM --push $$TGT" && \
+	if docker buildx build $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --push $$TGT >>$@.log 2>&1 ; \
 	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.fail.log"; mv $@.log $@.fail.log; fi
 
 
@@ -115,8 +118,8 @@ push-%:
 # promote "latest" image to "stable" in the repository
 promote-%:
 	d="$(patsubst promote-%,%,$@)"; \
-    docker buildx imagetools create -t squidcache/buildfarm-$$d:oldstable squidcache/buildfarm-$$d:stable ; \
-	docker buildx imagetools create -t squidcache/buildfarm-$$d:stable squidcache/buildfarm-$$d:latest 
+    docker buildx imagetools create -t squidcache/buildfarm$(EXTRATAG)-$$d:oldstable squidcache/buildfarm-$$d:stable ; \
+	docker buildx imagetools create -t squidcache/buildfarm$(EXTRATAG)-$$d:stable squidcache/buildfarm-$$d:latest 
 
 promote:
 	for d in $(TARGETS); do \
@@ -146,7 +149,7 @@ update-image:
 	PLATFORM="$$(docker manifest inspect squidcache/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | grep -v unknown | sed 's/"//g;s/\/$$//' | tr '\n'  ',' | sed 's/,$$//;s/arm$$/arm\/v7l/')"; \
     echo "platforms: $$PLATFORM"; \
     $(call prep,update-image); \
-    docker buildx build -t "squidcache/buildfarm-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
+    docker buildx build -t "squidcache/buildfarm$(EXTRATAG)-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
 
 help:
 	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs"
