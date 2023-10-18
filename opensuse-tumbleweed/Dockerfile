@@ -16,6 +16,7 @@ RUN \
 		diffutils \
 		ed \
 		find \
+        gawk \
 		gcc-c++ \
 		git \
 		gnutls-devel \
