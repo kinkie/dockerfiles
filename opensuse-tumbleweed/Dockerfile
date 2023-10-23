@@ -5,7 +5,7 @@ FROM ${REPO}:${VERSION}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
-	zypper --non-interactive install \
+	zypper --non-interactive install --no-confirm --auto-agree-with-licenses --force-resolution \
 		autoconf \
 		automake \
 		bzip2 \
@@ -16,7 +16,7 @@ RUN \
 		diffutils \
 		ed \
 		find \
-        gawk \
+		gawk \
 		gcc-c++ \
 		git \
 		gnutls-devel \

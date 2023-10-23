@@ -83,15 +83,15 @@ $(ALL_TARGETS):
 $(BUILDX_ALL_TARGETS):
 	@TGT=`echo $@ | sed 's/buildx-//'` ; \
 	IMAGELABEL="squidcache/buildfarm$(EXTRATAG)-$$TGT:$${TAG:-latest}" ; \
-	test -e $$TGT/skip-amd64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/amd64" ; \
-	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/i386" ; \
-	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm64/v8" ; \
+	test -e $$TGT/skip-amd64 || PLATFORM="$$PLATFORM$${PLATFORM+,}amd64" ; \
+	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM$${PLATFORM+,}i386" ; \
+	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm64" ; \
 	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm/v7" ; \
 	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL. Output in $@.log" ; \
-    if [ "$(SYSTEM)" != "Darwin" ]; then PLATFORM="--platform \'$$PLATFORM\'"; else PLATFORM=""; fi; \
+    if [ "$(SYSTEM)" != "Darwin" ]; then PLATFORM="--platform $$PLATFORM"; else PLATFORM=""; fi; \
 	$(call prep,$$TGT) >$@.log 2>&1 ; \
-    echo "docker buildx build $${proxy:+--build-arg http_proxy=$$proxy} -t \"$$IMAGELABEL\" $$PLATFORM --push $$TGT" && \
-	if docker buildx build $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --push $$TGT >>$@.log 2>&1 ; \
+    echo "docker buildx build --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t \"$$IMAGELABEL\" $$PLATFORM --push $$TGT" && \
+	if docker buildx build --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --push $$TGT >>$@.log 2>&1 ; \
 	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.fail.log"; mv $@.log $@.fail.log; fi
 
 
