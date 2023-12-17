@@ -4,50 +4,50 @@ ARG DISTRO=fedora
 ARG VERSION=32
 FROM ${DISTRO}:${VERSION}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-#	yum clean all && yum swap fakesystemd systemd \
+#  yum clean all && yum swap fakesystemd systemd \
 ADD local/* /usr/local/bin/
 RUN \
-	yum install -y \
-		autoconf \
-		automake \
-		bzip2 \
-		ccache \
-		clang \
-		cppunit \
-		cppunit-devel \
-		curl \
-		db4-devel \
-		ed \
-		expat-devel \
-		gcc-c++ \
-		git \
-		gnutls-devel \
-		gnutls-utils \
-		libatomic \
-		libatomic-static \
-		libcap-devel \
-		libtdb-devel \
-		libtool \
-		libtool-ltdl-devel \
-		libxml2-devel \
-		make \
-		nettle-devel \
-		openldap-devel \
-		openssl-devel \
-		pam-devel \
-		perl-Pod-MinimumVersion \
-		pkgconf-pkg-config \
-		xz \
-	&& \
-	yum clean all && \
-	rm /etc/profile.d/ccache* && \
-    groupadd -g 3128 jenk && \
-    useradd -u 3128 -g jenk -m jenk && \
-	groupadd -g 1000 jenkins && \
-	useradd -u 1000 -g jenkins -m jenkins && \
-	groupadd -g 1001 kinkie && \
-	useradd -u 1001 -m -g kinkie kinkie && \
-	true
+  yum install -y \
+    autoconf \
+    automake \
+    bzip2 \
+    ccache \
+    clang \
+    cppunit \
+    cppunit-devel \
+    curl \
+    db4-devel \
+    ed \
+    expat-devel \
+    gcc-c++ \
+    git \
+    gnutls-devel \
+    gnutls-utils \
+    libatomic \
+    libatomic-static \
+    libcap-devel \
+    libtdb-devel \
+    libtool \
+    libtool-ltdl-devel \
+    libxml2-devel \
+    make \
+    nettle-devel \
+    openldap-devel \
+    openssl-devel \
+    pam-devel \
+    perl-Pod-MinimumVersion \
+    pkgconf-pkg-config \
+    xz \
+  && \
+  yum clean all && \
+  rm /etc/profile.d/ccache* && \
+  groupadd -g 3128 jenk && \
+  useradd -u 3128 -g jenk -m jenk && \
+  groupadd -g 1000 jenkins && \
+  useradd -u 1000 -g jenkins -m jenkins && \
+  groupadd -g 1001 kinkie && \
+  useradd -u 1001 -m -g kinkie kinkie && \
+  true
 
 USER jenkins
 CMD ["/bin/bash", "-l"]
