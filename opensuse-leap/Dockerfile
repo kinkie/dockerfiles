@@ -31,6 +31,8 @@ RUN \
 		xz \
 	&& \
 	zypper --non-interactive clean && \
+    groupadd -g 3128 jenk && \
+    useradd -u 3128 -g jenk -m jenk && \
 	useradd -m jenkins && \
 	useradd -m kinkie
 RUN \

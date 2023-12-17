@@ -8,6 +8,8 @@ RUN \
 	useradd -u 1001 -m -g kinkie kinkie
 RUN \
     echo 'USE="-X -alsa* -apache2* -fortran -office_implementation_libreoffice -ada* -lcd* -libreoffice* -video* -xtables* -perl"' >>/etc/portage/make.conf && \
+    groupadd -g 3128 jenk && \
+    useradd -u 3128 -g jenk -m jenk && \
     if [ "`uname -m`" = "armv7l" ]; then \
       echo 'EMERGE_DEFAULT_OPTS="--jobs 1"' >> /etc/portage/make.conf ; \
       echo 'MAKEOPTS="-j2"' >> /etc/portage/make.conf; \

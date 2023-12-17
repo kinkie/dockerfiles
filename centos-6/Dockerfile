@@ -46,6 +46,8 @@ RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.
 		xz \
 	&& \
 	yum clean all && \
+	groupadd -g 3128 jenk && \
+	useradd -u 3128 -m -g jenk -G ccache jenk && \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -m -g jenkins -G ccache jenkins && \
 	groupadd -g 1001 kinkie && \

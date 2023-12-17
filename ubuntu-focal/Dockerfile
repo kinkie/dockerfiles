@@ -48,6 +48,8 @@ RUN \
 	apt-get clean -y && \
 	if id ubuntu >/dev/null; then userdel -r ubuntu ; fi && \
 	if getent group ubuntu >/dev/null; then groupdel ubuntu ; fi && \
+    groupadd -g 3128 jenk && \
+    useradd -u 3128 -g jenk -m jenk && \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -g jenkins -m jenkins && \
 	groupadd -g 1001 kinkie && \

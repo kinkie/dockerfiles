@@ -41,6 +41,8 @@ RUN \
 	&& \
 	apt-get autoremove -y && \
 	apt-get clean -y && \
+	groupadd -g 3128 jenk && \
+	useradd -u 3128 -g jenk -m jenk && \
 	groupadd -g 1000 jenkins && \
 	useradd -u 1000 -g jenkins -m jenkins && \
 	groupadd -g 1001 kinkie && \

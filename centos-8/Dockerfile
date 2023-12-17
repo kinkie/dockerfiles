@@ -54,6 +54,8 @@ RUN \
     rm -f /etc/profile.d/ccache* && \
     true
 RUN \
+    groupadd -g 3128 jenk && \
+    useradd -u 3128 -g jenk -m jenk && \
     groupadd -g 1000 jenkins && \
     useradd -u 1000 -m -g jenkins -G ccache jenkins && \
     groupadd -g 1001 kinkie && \
