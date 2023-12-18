@@ -8,7 +8,6 @@ MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
   apt-get update && \
-  apt-get upgrade --no-install-recommends -y && \
   apt-get install --no-install-recommends -y \
     autoconf \
     autoconf-archive \
@@ -37,15 +36,17 @@ RUN \
     libxml2-dev \
     linuxdoc-tools \
     make \
-    nano \
     nettle-dev \
     pkg-config \
     po4a \
     translate-toolkit \
     xz-utils \
   && \
+  apt-get upgrade --no-install-recommends -y && \
   apt-get autoremove -y && \
   apt-get clean -y && \
+  true
+RUN \
   groupadd -g 3128 jenk && \
   useradd -u 3128 -g jenk -m jenk && \
   groupadd -g 1000 jenkins && \
