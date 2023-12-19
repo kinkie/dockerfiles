@@ -4,18 +4,18 @@ FROM ${DISTRO}:${VERSION}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
-  zypper --non-interactive install \
+  zypper --non-interactive up && \
+  zypper --non-interactive install --no-confirm --auto-agree-with-licenses --force-resolution \
     autoconf \
     automake \
     bzip2 \
     ccache \
     clang \
     cppunit-devel \
-    curl \
     ed \
-    gcc8-c++ \
+    gcc-c++ \
     git \
-    gnutls-devel \
+    libgnutls-devel \
     gnutls \
     gzip \
     libcap-devel \
@@ -26,19 +26,19 @@ RUN \
     libtool \
     libxml2-devel \
     make \
+    pandoc \
     pkg-config \
     which \
     xz \
   && \
-  zypper --non-interactive clean && \
-  groupadd -g 3128 jenk && \
-  useradd -u 3128 -g jenk -m jenk && \
-  useradd -m jenkins && \
-  useradd -m kinkie
+  zypper --non-interactive clean
 RUN \
-  update-alternatives --install /usr/bin/g++ c++ /usr/bin/g++-8 20 && \
-  update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-8 20 && \
-  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 20 && \
-  true
+  groupadd -g 1000 jenkins && \
+  useradd -u 1000 -g 1000 jenkins && \
+  groupadd -g 1001 kinkie && \
+  useradd -u 1001 -g 1001 kinkie && \
+  groupadd -g 3128 jenk && \
+  useradd -u 3128 -g 3128 jenk
+
 USER jenkins
 CMD ["/bin/bash", "-l"]
