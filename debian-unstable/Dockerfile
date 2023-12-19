@@ -37,6 +37,7 @@ RUN \
     linuxdoc-tools \
     make \
     nettle-dev \
+    pandoc \
     pkg-config \
     po4a \
     translate-toolkit \

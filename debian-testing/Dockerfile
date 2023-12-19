@@ -40,6 +40,7 @@ RUN \
     make \
     nano \
     nettle-dev \
+    pandoc \
     pkg-config \
     po4a \
     translate-toolkit \
