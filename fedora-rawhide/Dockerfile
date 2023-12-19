@@ -38,6 +38,7 @@ RUN \
     nettle-devel \
     openldap-devel \
     openssl-devel \
+    pandoc \
     pam-devel \
     perl-Pod-MinimumVersion \
     pkgconf-pkg-config \

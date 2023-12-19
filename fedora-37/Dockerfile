@@ -37,6 +37,7 @@ RUN \
     openldap-devel \
     openssl-devel \
     pam-devel \
+    pandoc \
     perl-Pod-MinimumVersion \
     pkgconf-pkg-config \
     xz \

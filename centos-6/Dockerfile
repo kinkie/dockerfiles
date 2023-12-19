@@ -39,6 +39,7 @@ RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.
     openldap-devel \
     openssl-devel \
     pam-devel \
+    pandoc \
     perl-Pod-MinimumVersion \
     screen \
     translate-toolkit \

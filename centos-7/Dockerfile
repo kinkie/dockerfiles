@@ -36,6 +36,7 @@ RUN \
     openldap-devel \
     openssl-devel \
     pam-devel \
+    pandoc \
     perl-Pod-MinimumVersion \
     po4a \
     translate-toolkit \

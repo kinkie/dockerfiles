@@ -39,6 +39,7 @@ RUN \
     openldap-devel \
     openssl-devel \
     pam-devel \
+    pandoc \
     perl-Perl-MinimumVersion \
     screen \
     vim \
