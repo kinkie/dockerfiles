@@ -49,10 +49,10 @@ RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.
   yum clean all && \
   true
 RUN \
-  groupadd -g 3128 jenk && \
-  useradd -u 3128 -m -g jenk -G ccache jenk && \
-  groupadd -g 1000 jenkins && \
-  useradd -u 1000 -m -g jenkins -G ccache jenkins && \
+  groupadd -g 1000 jenk && \
+  useradd -u 1000 -m -g jenk -G ccache jenk && \
+  groupadd -g 3128 jenkins && \
+  useradd -u 3128 -m -g jenkins -G ccache jenkins && \
   groupadd -g 1001 kinkie && \
   useradd -u 1001 -m -g kinkie -G ccache kinkie && \
   rm -f /etc/profile.d/ccache* && \

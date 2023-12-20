@@ -31,12 +31,12 @@ RUN \
   rm -rf /var/db/repos/gentoo && \
   true
 RUN \
-  groupadd -g 1000 jenkins && \
-  useradd -u 1000 -g jenkins -m jenkins && \
+  groupadd -g 3128 jenkins && \
+  useradd -u 3128 -g jenkins -m jenkins && \
   groupadd -g 1001 kinkie && \
   useradd -u 1001 -m -g kinkie kinkie && \
-  groupadd -g 3128 jenk && \
-  useradd -u 3128 -g jenk -m jenk && \
+  groupadd -g 1000 jenk && \
+  useradd -u 1000 -g jenk -m jenk && \
   true
 
 #    app-text/pandoc \ # pandoc required ghc which fails building on an internal error 

@@ -33,12 +33,12 @@ RUN \
   && \
   zypper --non-interactive clean
 RUN \
-  groupadd -g 1000 jenkins && \
-  useradd -u 1000 -g 1000 jenkins && \
+  groupadd -g 3128 jenkins && \
+  useradd -u 3128 -g 3128 jenkins && \
   groupadd -g 1001 kinkie && \
   useradd -u 1001 -g 1001 kinkie && \
-  groupadd -g 3128 jenk && \
-  useradd -u 3128 -g 3128 jenk
+  groupadd -g 1000 jenk && \
+  useradd -u 1000 -g 1000 jenk
 
 USER jenkins
 CMD ["/bin/bash", "-l"]

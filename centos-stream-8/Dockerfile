@@ -56,10 +56,10 @@ RUN \
   ln -s `rpm -ql libatomic-static | grep -F libatomic.a` /usr/lib64/libatomic.a && \
   ldconfig -v
 RUN \
-  groupadd -g 3128 jenk && \
-  useradd -u 3128 -g jenk -m jenk && \
-  groupadd -g 1000 jenkins && \
-  useradd -u 1000 -m -g jenkins -G ccache jenkins && \
+  groupadd -g 1000 jenk && \
+  useradd -u 1000 -g jenk -m jenk && \
+  groupadd -g 3128 jenkins && \
+  useradd -u 3128 -m -g jenkins -G ccache jenkins && \
   groupadd -g 1001 kinkie && \
   useradd -u 1001 -m -g kinkie -G ccache kinkie && \
   true
