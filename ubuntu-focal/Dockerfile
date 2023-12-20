@@ -47,6 +47,8 @@ RUN \
   && \
   apt-get autoremove -y && \
   apt-get clean -y && \
+  true
+RUN \
   if id ubuntu >/dev/null; then userdel -r ubuntu ; fi && \
   if getent group ubuntu >/dev/null; then groupdel ubuntu ; fi && \
   groupadd -g 3128 jenk && \
