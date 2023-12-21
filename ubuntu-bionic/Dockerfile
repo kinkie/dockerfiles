@@ -37,7 +37,6 @@ RUN \
     libxml2-dev \
     make \
     nettle-dev \
-    pandoc \
     pkg-config \
     po4a \
     translate-toolkit \
