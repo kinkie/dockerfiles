@@ -1,3 +1,5 @@
+# note: standard gcc and clang have issues with some c++17 support 2023-12-22
+
 ARG DISTRO=opensuse/leap
 ARG VERSION=latest
 FROM ${DISTRO}:${VERSION}
@@ -10,10 +12,10 @@ RUN \
     automake \
     bzip2 \
     ccache \
-    clang \
+    clang15 \
     cppunit-devel \
     ed \
-    gcc-c++ \
+    gcc13-c++ \
     git \
     libgnutls-devel \
     gnutls \
