@@ -1,0 +1,34 @@
+- install windows
+- install java
+- install visual studio community edition
+- install msys2 (https://www.msys2.org/)
+- add jenkins user
+  net user /add jenkins
+  net user jenkins <password>
+- install ssh public keys in ~jenkins/.ssh/authorized_keys
+- in msys2:
+pacman -S  \
+  autoconf \
+  autoconf-archive \
+  automake \
+  bzip2 \
+  ccache \
+  clang \
+  ed \
+  gcc \
+  git \
+  libexpat-devel \
+  libgnutls-devel \
+  libltdl \
+  libnettle-devel \
+  libtool \
+  libxml2-devel \
+  make \
+  mingw-w64-x86_64-cppunit \
+  openssl-devel \
+  pkgconf
+
+
+- to run it:
+c:\msys64\msys2_shell.cmd  -msys -no-start -defterm -here
+
