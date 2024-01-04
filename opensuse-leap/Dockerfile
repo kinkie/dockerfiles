@@ -33,7 +33,10 @@ RUN \
     which \
     xz \
   && \
-  zypper --non-interactive clean
+  zypper --non-interactive clean && \
+  which gcc 2>/dev/null || update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 50 && \
+  which g++ 2>/dev/null || update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 50 && \
+  true
 RUN \
   groupadd -g 3128 jenkins && \
   useradd -u 3128 -g 3128 jenkins && \
