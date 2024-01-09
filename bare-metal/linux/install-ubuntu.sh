@@ -14,7 +14,9 @@ apt -y install \
 	cpufrequtils \
 	docker.io \
 	duplicity \
+    fancontrol \
 	lftp \
+    lm-sensors \
 	mosh \
 	openjdk-11-jre-headless \
 	rcs \
@@ -34,7 +36,7 @@ setup_ssh_user () {
 }
 
 # jenkins
-useradd -u 1000 -g 1000 -G docker -s /bin/bash -m jenkins
+useradd -u 3128 -g 3128 -G docker -s /bin/bash -m jenkins
 setup_ssh_user jenkins
 su - jenkins -c '\
 	mkdir -p workspace docker-imags/homedir && \
@@ -45,6 +47,9 @@ su - jenkins -c '\
 useradd -u 1001 -g 1001 -G docker -s /bin/bash -m kinkie
 setup_ssh_user kinkie
 setup_ssh_user root
+
+sensors-detect --auto
+pwmconfig
 
 # passwords
 echo "password for jenkins"
