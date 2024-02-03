@@ -58,7 +58,8 @@ default: help
 
 list:
 	@echo "all possible targets:"; echo "$(ALL_TARGETS)"; echo
-	@echo "actual targets:"; echo "$(TARGETS)"
+	@echo "actual targets:"; echo "$(TARGETS)"; echo
+	@echo "make all will build: "; echo "$(filter-out $(patsubst %/,buildx-%,$(dir $(wildcard */skip-build))),$(BUILDX_TARGETS))"
 
 targets:
 	@echo "$(TARGETS)"
