@@ -1,5 +1,4 @@
-#template dockerfile to build a centos-based build image
-# run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
+# EOL July 2024
 
 ARG distro=ubuntu
 ARG version=mantic

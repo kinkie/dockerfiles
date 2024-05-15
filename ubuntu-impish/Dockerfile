@@ -1,5 +1,4 @@
-#template dockerfile to build a centos-based build image
-# run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
+# EOL Jul 2022
 
 ARG distro=ubuntu
 ARG version=impish

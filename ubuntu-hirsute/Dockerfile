@@ -1,7 +1,5 @@
-#template dockerfile to build a centos-based build image
-# run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
+# EOL Jan 2022
 
-# end of support: Jan 2022
 ARG distro=ubuntu
 ARG version=hirsute
 FROM ${distro}:${version}

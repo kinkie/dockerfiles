@@ -1,7 +1,5 @@
-#template dockerfile to build a centos-based build image
-# run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
+# EOL Jan 2024
 
-# supported unti 2024.01
 ARG distro=ubuntu
 ARG version=lunar
 FROM ${distro}:${version}
