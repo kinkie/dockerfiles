@@ -134,6 +134,6 @@ update-image:
     docker buildx build -t "squidcache/buildfarm$(EXTRATAG)-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
 
 help:
-	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs"
+	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs, combination-filter"
 	@echo "BUILDOPTS: $(BUILDOPTS)"
 	@echo "images that can be built: $(TARGETS)"
