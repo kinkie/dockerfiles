@@ -110,7 +110,7 @@ promote:
 
 clean:
 	-for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
-	-rm *.log
+	-rm log-* *.log
 
 clean-images:
 	docker container prune -f

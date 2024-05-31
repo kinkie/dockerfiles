@@ -1,3 +1,5 @@
+CONTINUE=true # if true, then do not rebuild existing images
+SOURCE_REPO=https://github.com/kinkie/dockerfiles
 PUSH_LOCATION=ghcr.io/kinkie
 CPU:=$(shell uname -m)
 SYSTEM:=$(shell uname -s)
@@ -29,6 +31,9 @@ DATE=$(shell date +%y%m%d)
 # LOGCMD=2>&1 | tee -a $(LOG)
 # endif
 
+dbgcmd = \
+	echo $(1) ; $(1)
+
 # args: distro, tag
 make_manifest = \
 	docker manifest rm squidcache/buildfarm-$(1):$(2) || true &&  \
@@ -42,9 +47,6 @@ push_manifest = \
 	docker manifest push squidcache/buildfarm-$(1):$(2)
 
 # args: distro, tag
-push_image = \
-	 docker push squidcache/buildfarm$(EXTRATAG)-$(CPU)-$(1):$(2)
-
 prep = \
 	mkdir -p "$1/local" && \
 	rsync -a --delete local/all/* "$1/local"
@@ -62,13 +64,14 @@ targets:
 	@echo "$(TARGETS)"
 
 combination-filter:
-	@for OS in $(TARGETS) ; do for CPU in armv7l aarch64 i386 amd64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
+	@for OS in $(TARGETS) ; do for CPU in armv7l aarch64 i386 amd64 riscv64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
 
 # assume it's run on amd64
 $(ALL_TARGETS):
-	TGT=$@; \
+	@TGT=$@; \
 	DATE=`date +%y%m%d`; \
 	MANIFEST="$$TGT:$$DATE" ; \
+    if test "$(CONTINUE)" = "true" && podman image exists localhost/$$MANIFEST; then echo "skipping $$TGT"; exit 0; fi; \
 	test -e $$TGT/skip-amd64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/amd64" ; \
 	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/i386" ; \
 	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm64" ; \
@@ -76,30 +79,20 @@ $(ALL_TARGETS):
 	test -e $$TGT/skip-riscv64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/riscv64" ; \
 	if [ "$(SYSTEM)" != "Darwin" ]; then PLATFORM="--platform $$PLATFORM"; else PLATFORM=""; fi; \
 	$(call prep,$$TGT); \
-	podman rmi -f localhost/$$MANIFEST ; \
-	podman manifest create localhost/$$MANIFEST && \
-	podman build --format docker --jobs `nproc` $$PLATFORM --manifest localhost/$$MANIFEST --logfile log-$${TGT} --logsplit $$TGT ; \
+	$(call dbgcmd,podman rmi -f localhost/$$MANIFEST) ; \
+	$(call dbgcmd,podman manifest create localhost/$$MANIFEST) && \
+	$(call dbgcmd,podman build --format docker --jobs `nproc` $$PLATFORM --label org.opencontainers.image.source=$(SOURCE_REPO)  --manifest localhost/$$MANIFEST --logfile log-$${TGT} --logsplit $$TGT) && \
+    $(call dbgcmd,podman push "localhost/$$MANIFEST" "$(PUSH_LOCATION)/$$MANIFEST") ; \
 	if [ $$? -eq 0 ]; then result=ok; else result=fail; fi; \
-	for lf in log-$${TGT}*; do mv $$lf $${lf}.$$result; done; \
-	if [ "$$result" = "ok" ] ; then podman push localhost/$$MANIFEST $$PUSH_LOCATION/$$MANIFEST; fi
+	for lf in log-$${TGT}*; do mv $$lf $${lf}.$$result; done
 
 # buildx all
 all: $(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-build))),$(TARGETS))
-
-push: $(PUSH_TARGETS)
-#	$(call push_manifest,gentoo,latest)
-#	for d in $(TARGETS); do $(call push_image,$$d,latest); $(call make_manifest,$$d,latest); $(call push_manifest,$$d,latest); done
 
 prep-%:
 	echo $@
 	d="$(patsubst prep-%,%,$@)"; \
 	$(call prep,$$d)
-
-push-%:
-	d="$(patsubst push-%,%,$@)"; \
-	$(call push_image,$$d,latest) ; \
-	$(call make_manifest,$$d,latest) ; \
-	$(call push_manifest,$$d,latest) 
 
 # promote "latest" image to "stable" in the repository
 promote-%:
@@ -115,6 +108,8 @@ promote:
 clean:
 	-for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
 	-rm log-*
+	buildah rm --all
+	buildah rmi --all
 
 clean-images:
 	docker container prune -f
