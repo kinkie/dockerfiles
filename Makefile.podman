@@ -71,7 +71,7 @@ $(ALL_TARGETS):
 	@TGT=$@; \
 	DATE=`date +%y%m%d`; \
 	MANIFEST="$$TGT:$$DATE" ; \
-    if test "$(CONTINUE)" = "true" && podman image exists localhost/$$MANIFEST; then echo "skipping $$TGT"; exit 0; fi; \
+	if podman image exists "localhost/$$MANIFEST" && test -n "$(CONTINUE)"; then echo "skipping $$TGT"; exit 0; fi; \
 	test -e $$TGT/skip-amd64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/amd64" ; \
 	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/i386" ; \
 	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm64" ; \
@@ -79,12 +79,12 @@ $(ALL_TARGETS):
 	test -e $$TGT/skip-riscv64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/riscv64" ; \
 	if [ "$(SYSTEM)" != "Darwin" ]; then PLATFORM="--platform $$PLATFORM"; else PLATFORM=""; fi; \
 	$(call prep,$$TGT); \
-	$(call dbgcmd,podman rmi -f localhost/$$MANIFEST) ; \
-	$(call dbgcmd,podman manifest create localhost/$$MANIFEST) && \
-	$(call dbgcmd,podman build --format docker --jobs `nproc` $$PLATFORM --label org.opencontainers.image.source=$(SOURCE_REPO)  --manifest localhost/$$MANIFEST --logfile log-$${TGT} --logsplit $$TGT) && \
-    $(call dbgcmd,podman push "localhost/$$MANIFEST" "$(PUSH_LOCATION)/$$MANIFEST") ; \
-	if [ $$? -eq 0 ]; then result=ok; else result=fail; fi; \
-	for lf in log-$${TGT}*; do mv $$lf $${lf}.$$result; done
+	podman rmi -f localhost/$$MANIFEST ; \
+	podman manifest create localhost/$$MANIFEST && \
+	podman build --format docker --jobs `nproc` $$PLATFORM --label org.opencontainers.image.source=$(SOURCE_REPO) --label org.opencontainers.image.licenses=GPL-2.0 --manifest localhost/$$MANIFEST --logfile log-$${TGT} --logsplit $$TGT && \
+	podman push "localhost/$$MANIFEST" "$(PUSH_LOCATION)/$$MANIFEST" && \
+	result=ok; \
+	for lf in log-$${TGT} log-$${TGT}_*; do mv $$lf $${lf}.$${result:-fail}; done
 
 # buildx all
 all: $(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-build))),$(TARGETS))
@@ -94,43 +94,26 @@ prep-%:
 	d="$(patsubst prep-%,%,$@)"; \
 	$(call prep,$$d)
 
-# promote "latest" image to "stable" in the repository
-promote-%:
-	d="$(patsubst promote-%,%,$@)"; \
-	docker buildx imagetools create -t squidcache/buildfarm$(EXTRATAG)-$$d:oldstable squidcache/buildfarm-$$d:stable ; \
-	docker buildx imagetools create -t squidcache/buildfarm$(EXTRATAG)-$$d:stable squidcache/buildfarm-$$d:latest 
-
-promote:
-	for d in $(TARGETS); do \
-		make promote-$$d ; \
-	done
+## promote "latest" image to "stable" in the repository
+#promote-%:
+#	d="$(patsubst promote-%,%,$@)"; \
+#	docker buildx imagetools create -t squidcache/buildfarm$(EXTRATAG)-$$d:oldstable squidcache/buildfarm-$$d:stable ; \
+#	docker buildx imagetools create -t squidcache/buildfarm$(EXTRATAG)-$$d:stable squidcache/buildfarm-$$d:latest 
+#
+#promote:
+#	for d in $(TARGETS); do \
+#		make promote-$$d ; \
+#	done
 
 clean:
 	-for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
 	-rm log-*
-	buildah rm --all
-	buildah rmi --all
 
 clean-images:
-	docker container prune -f
-	docker image prune -f
-
-clean-dangling-images:
-	docker container prune -f
-	docker images | grep -F '<none>' | awk '{print $$3}' | xargs -r docker rmi
-
-clean-all-images: clean-images clean-dangling-images
-	docker container prune -f
-	docker images | grep -v -F -e REPOSITORY -e '<none>' | awk '{print $$1 ":" $$2 }' | uniq | xargs -r docker rmi
-	docker images | grep -v -F -e REPOSITORY | awk '{print $$3}' | uniq | xargs -r docker rmi
-
-## todo: need to call prep to update local
-update-image:
-	@if [ -z "$(DISTRO)" ]; then echo "use: make update-image DISTRO=distribution" ; exit 1; fi
-	PLATFORM="$$(docker manifest inspect squidcache/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | grep -v unknown | sed 's/"//g;s/\/$$//' | tr '\n'  ',' | sed 's/,$$//;s/arm$$/arm\/v7l/')"; \
-	echo "platforms: $$PLATFORM"; \
-	$(call prep,update-image); \
-	docker buildx build -t "squidcache/buildfarm$(EXTRATAG)-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
+	podman container prune -f
+	podman image prune -f
+	buildah rm --all
+	buildah rmi --all
 
 help:
 	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs, combination-filter"
