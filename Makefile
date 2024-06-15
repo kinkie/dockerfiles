@@ -61,7 +61,7 @@ targets:
 	@echo "$(TARGETS)"
 
 combination-filter:
-	@for OS in $(TARGETS) ; do for CPU in armv7l aarch64 i386 amd64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
+	@for OS in $(TARGETS) ; do for CPU in armv7l aarch64 i386 amd64 riscv64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
 
 # assume it's run on amd64
 $(ALL_TARGETS):
@@ -74,8 +74,8 @@ $(ALL_TARGETS):
 	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL. Output in $@.log" ; \
     if [ "$(SYSTEM)" != "Darwin" ]; then PLATFORM="--platform $$PLATFORM"; else PLATFORM=""; fi; \
 	$(call prep,$$TGT) >$@.log 2>&1 ; \
-    echo "docker buildx build --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t \"$$IMAGELABEL\" $$PLATFORM --push $$TGT" && \
-	if docker buildx build --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --push $$TGT >>$@.log 2>&1 ; \
+    echo "docker buildx build --builder squid --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t \"$$IMAGELABEL\" $$PLATFORM --push $$TGT" && \
+	if docker buildx build --builder squid --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --push $$TGT >>$@.log 2>&1 ; \
 	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.fail.log"; mv $@.log $@.fail.log; fi
 
 
