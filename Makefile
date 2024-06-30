@@ -10,7 +10,7 @@ PUSH_TARGETS:=$(patsubst %,push-%,$(TARGETS))
 IS_PARALLEL=$(if $(findstring jobserver,$(MFLAGS)),1)
 .PHONY: $(ALL_TARGETS) combination-filter update-image
 
-# archutectures must be one of amd64, arm/v7l, arm64/v8
+# must be one of amd64, arm/v7l, arm64/v8, riscv64
 ARCH:=$(uname -m)
 
 BUILDOPTS=
@@ -71,6 +71,7 @@ $(ALL_TARGETS):
 	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM$${PLATFORM+,}i386" ; \
 	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm64" ; \
 	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm/v7" ; \
+	test -e $$TGT/skip-riscv64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/riscv64" ; \
 	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL. Output in $@.log" ; \
     if [ "$(SYSTEM)" != "Darwin" ]; then PLATFORM="--platform $$PLATFORM"; else PLATFORM=""; fi; \
 	$(call prep,$$TGT) >$@.log 2>&1 ; \
