@@ -1,6 +1,6 @@
 # squid build image, plus wine development
 FROM squidcache/buildfarm-ubuntu-jammy:latest
-MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 USER root
 RUN \
   apt -y update && \

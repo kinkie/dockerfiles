@@ -2,7 +2,7 @@
 # run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
 
 FROM centos:centos6
-MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 ADD devtools-2.repo /etc/yum.repos.d/
 ADD local/* /usr/local/bin/
 RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm && \

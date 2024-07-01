@@ -2,7 +2,7 @@
 # run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
 
 FROM centos:centos8
-MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
   sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \

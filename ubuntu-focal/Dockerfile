@@ -3,7 +3,7 @@
 ARG distro=ubuntu
 ARG version=focal
 FROM ${distro}:${version}
-MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 # ENV http_proxy=""
 #  sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list && \

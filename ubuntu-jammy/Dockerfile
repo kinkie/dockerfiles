@@ -3,7 +3,7 @@
 ARG distro=ubuntu
 ARG version=jammy
 FROM ${distro}:${version}
-MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
   sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list && \

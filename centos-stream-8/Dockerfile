@@ -2,7 +2,7 @@
 # run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
 
 FROM quay.io/centos/centos:stream8
-MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
   dnf -y install dnf-plugins-core && \

@@ -1,3 +1,6 @@
+REGISTRY:=ghcr.io/kinkie
+# REGISTRY:=docker.io/squidcache
+
 CPU:=$(shell uname -m)
 SYSTEM:=$(shell uname -s)
 # define PUSH to push upon build
@@ -30,19 +33,19 @@ DATE=$(shell date +%y%m%d)
 
 # args: distro, tag
 make_manifest = \
-	docker manifest rm squidcache/buildfarm-$(1):$(2) || true &&  \
-	docker manifest create squidcache/buildfarm-$(1):$(2) \
-		squidcache/buildfarm-x86_64-$(1):$(2) \
-	$(if $(wildcard $(1)/skip-aarch64),, squidcache/buildfarm-aarch64-$(1):$(2)) \
-	$(if $(wildcard $(1)/skip-armv7l),, squidcache/buildfarm-armv7l-$(1):$(2))
+	docker manifest rm $(REGISTRY)/buildfarm-$(1):$(2) || true &&  \
+	docker manifest create $(REGISTRY)/buildfarm-$(1):$(2) \
+		$(REGISTRY)/buildfarm-x86_64-$(1):$(2) \
+	$(if $(wildcard $(1)/skip-aarch64),, $(REGISTRY)/buildfarm-aarch64-$(1):$(2)) \
+	$(if $(wildcard $(1)/skip-armv7l),, $(REGISTRY)/buildfarm-armv7l-$(1):$(2))
 
 # args: distro, tag
 push_manifest = \
-	docker manifest push squidcache/buildfarm-$(1):$(2)
+	docker manifest push $(REGISTRY)/buildfarm-$(1):$(2)
 
 # args: distro, tag
 push_image = \
-	 docker push squidcache/buildfarm$(EXTRATAG)-$(CPU)-$(1):$(2)
+	 docker push $(REGISTRY)/buildfarm$(EXTRATAG)-$(CPU)-$(1):$(2)
 
 prep = \
 	mkdir -p "$1/local" && \
@@ -66,7 +69,7 @@ combination-filter:
 # assume it's run on amd64
 $(ALL_TARGETS):
 	@TGT=$@; \
-	IMAGELABEL="squidcache/buildfarm$(EXTRATAG)-$$TGT:$${TAG:-latest}" ; \
+	IMAGELABEL="$(REGISTRY)/buildfarm$(EXTRATAG)-$$TGT:$${TAG:-latest}" ; \
 	test -e $$TGT/skip-amd64 || PLATFORM="$$PLATFORM$${PLATFORM+,}amd64" ; \
 	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM$${PLATFORM+,}i386" ; \
 	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm64" ; \
@@ -79,6 +82,7 @@ $(ALL_TARGETS):
 	if docker buildx build --builder squid --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --push $$TGT >>$@.log 2>&1 ; \
 	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.fail.log"; mv $@.log $@.fail.log; fi
 
+#	if docker buildx build --builder squid --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --output type=image,name=$(REGISTRY)/$$TGT,push=true $$TGT >>$@.log 2>&1 ; \
 
 # buildx all
 all: $(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-build))),$(TARGETS))
@@ -101,8 +105,8 @@ push-%:
 # promote "latest" image to "stable" in the repository
 promote-%:
 	d="$(patsubst promote-%,%,$@)"; \
-    docker buildx imagetools create -t squidcache/buildfarm$(EXTRATAG)-$$d:oldstable squidcache/buildfarm-$$d:stable ; \
-	docker buildx imagetools create -t squidcache/buildfarm$(EXTRATAG)-$$d:stable squidcache/buildfarm-$$d:latest 
+    docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:oldstable $(REGISTRY)/buildfarm-$$d:stable ; \
+	docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:stable $(REGISTRY)/buildfarm-$$d:latest 
 
 promote:
 	for d in $(TARGETS); do \
@@ -129,10 +133,10 @@ clean-all-images: clean-images clean-dangling-images
 ## todo: need to call prep to update local
 update-image:
 	@if [ -z "$(DISTRO)" ]; then echo "use: make update-image DISTRO=distribution" ; exit 1; fi
-	PLATFORM="$$(docker manifest inspect squidcache/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | grep -v unknown | sed 's/"//g;s/\/$$//' | tr '\n'  ',' | sed 's/,$$//;s/arm$$/arm\/v7l/')"; \
+	PLATFORM="$$(docker manifest inspect $(REGISTRY)/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | grep -v unknown | sed 's/"//g;s/\/$$//' | tr '\n'  ',' | sed 's/,$$//;s/arm$$/arm\/v7l/')"; \
     echo "platforms: $$PLATFORM"; \
     $(call prep,update-image); \
-    docker buildx build -t "squidcache/buildfarm$(EXTRATAG)-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
+    docker buildx build -t "$(REGISTRY)/buildfarm$(EXTRATAG)-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
 
 help:
 	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs, combination-filter"

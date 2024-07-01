@@ -4,7 +4,7 @@
 ARG distro=ubuntu
 ARG version=bionic
 FROM ${distro}:${version}
-MAINTAINER "Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 ADD local/* /usr/local/bin/
 RUN \
   apt-get update && \
