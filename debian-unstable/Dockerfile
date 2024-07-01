@@ -35,6 +35,7 @@ RUN \
     libtool-bin \
     libxml2-dev \
     linuxdoc-tools \
+    m4 \
     make \
     nettle-dev \
     pandoc \
