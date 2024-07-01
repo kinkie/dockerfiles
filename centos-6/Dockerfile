@@ -3,6 +3,7 @@
 
 FROM centos:centos6
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
 ADD devtools-2.repo /etc/yum.repos.d/
 ADD local/* /usr/local/bin/
 RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm && \

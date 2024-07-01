@@ -4,6 +4,7 @@ ARG DISTRO=opensuse/leap
 ARG VERSION=latest
 FROM ${DISTRO}:${VERSION}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
 ADD local/* /usr/local/bin/
 RUN \
   zypper --non-interactive up && \

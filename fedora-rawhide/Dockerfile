@@ -3,6 +3,7 @@ ARG VERSION=rawhide
 ARG RELEASE=30
 FROM ${DISTRO}:${VERSION}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
 #  dnf clean all && yum swap fakesystemd systemd \
 #  dnf -y update --releasever=30 fedora-repos\* fedora-release dnf && \
 #  rpm --import https://src.fedoraproject.org/rpms/fedora-repos/raw/master/f/RPM-GPG-KEY-fedora-32-primary && \

@@ -1,6 +1,7 @@
 # squid build image, plus wine development
 FROM squidcache/buildfarm-ubuntu-jammy:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
 USER root
 RUN \
   apt -y update && \

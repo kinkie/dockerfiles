@@ -4,6 +4,7 @@ ARG distro=ubuntu
 ARG version=mantic
 FROM ${distro}:${version}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
 ADD local/* /usr/local/bin/
 # ENV http_proxy=""
 #  sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list && \

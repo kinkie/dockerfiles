@@ -2,6 +2,7 @@ ARG DISTRO=centos
 ARG VERSION=7
 FROM ${DISTRO}:centos${VERSION}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
 ADD local/* /usr/local/bin/
 RUN \
   yum clean all && yum swap fakesystemd systemd && \

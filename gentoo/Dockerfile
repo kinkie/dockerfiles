@@ -1,5 +1,6 @@
 FROM gentoo/stage3:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
 ADD local/* /usr/local/bin/
 RUN \
   echo 'USE="-X -alsa* -apache2* -fortran -office_implementation_libreoffice -ada* -lcd* -libreoffice* -video* -xtables* -perl"' >>/etc/portage/make.conf && \
