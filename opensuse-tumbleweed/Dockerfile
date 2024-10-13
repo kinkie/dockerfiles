@@ -14,6 +14,7 @@ RUN \
     ccache \
     clang \
     cppunit-devel \
+    diff \
     ed \
     gawk \
     gcc-c++ \
