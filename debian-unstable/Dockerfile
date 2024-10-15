@@ -14,6 +14,7 @@ RUN \
     autoconf-archive \
     automake \
     bzip2 \
+    ca-certificates \
     ccache \
     clang \
     curl \
