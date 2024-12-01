@@ -66,6 +66,14 @@ targets:
 combination-filter:
 	@for OS in $(TARGETS) ; do for CPU in armv7l aarch64 i386 amd64 riscv64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
 
+exclude-list:
+	@for OS in $(TARGETS) ; do \
+        for CPU in armv7l aarch64 i386 amd64 riscv64; do \
+            test -e "$$OS/skip-$$CPU" && \
+                echo "          - { platform: $$CPU, os: $$OS }" ;\
+        done; \
+    done | sed 's!armv7l!arm/v7!g'
+
 # assume it's run on amd64
 $(ALL_TARGETS):
 	@TGT=$@; \
