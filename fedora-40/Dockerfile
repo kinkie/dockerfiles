@@ -40,6 +40,7 @@ RUN \
     pandoc \
     perl-Pod-MinimumVersion \
     pkgconf-pkg-config \
+    which \
     xz \
   && \
   yum clean all && \
