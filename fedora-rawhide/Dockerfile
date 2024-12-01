@@ -8,7 +8,6 @@ LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
 #  dnf -y update --releasever=30 fedora-repos\* fedora-release dnf && \
 #  rpm --import https://src.fedoraproject.org/rpms/fedora-repos/raw/master/f/RPM-GPG-KEY-fedora-32-primary && \
 #    libdb4-devel \
-ADD local/* /usr/local/bin/
 RUN \
   dnf update -y && \
   dnf install -y \

@@ -4,7 +4,6 @@
 FROM centos:centos8
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
-ADD local/* /usr/local/bin/
 RUN \
   sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
   sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \

@@ -6,7 +6,6 @@ FROM ${DISTRO}:${VERSION}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
 #  yum clean all && yum swap fakesystemd systemd \
-ADD local/* /usr/local/bin/
 RUN \
   dnf install -y \
     autoconf \

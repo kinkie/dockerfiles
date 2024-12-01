@@ -47,10 +47,6 @@ push_manifest = \
 push_image = \
 	 docker push $(REGISTRY)/buildfarm$(EXTRATAG)-$(CPU)-$(1):$(2)
 
-prep = \
-	mkdir -p "$1/local" && \
-	rsync -a --delete local/all/* "$1/local"
-
 testme:
 	$(call make_manifest,centos-stream-8,latest)
 
@@ -85,7 +81,6 @@ $(ALL_TARGETS):
 	test -e $$TGT/skip-riscv64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/riscv64" ; \
 	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL. Output in $@.log" ; \
     if [ "$(SYSTEM)" != "Darwin" ]; then PLATFORM="--platform $$PLATFORM"; else PLATFORM=""; fi; \
-	$(call prep,$$TGT) >$@.log 2>&1 ; \
     echo "docker buildx build --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t \"$$IMAGELABEL\" $$PLATFORM --push $$TGT" && \
 	if docker buildx build --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --push $$TGT >>$@.log 2>&1 ; \
 	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.fail.log"; mv $@.log $@.fail.log; fi
@@ -98,11 +93,6 @@ all: $(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-build))),$(TARGETS))
 push: $(PUSH_TARGETS)
 #	$(call push_manifest,gentoo,latest)
 #	for d in $(TARGETS); do $(call push_image,$$d,latest); $(call make_manifest,$$d,latest); $(call push_manifest,$$d,latest); done
-
-prep-%:
-	echo $@
-	d="$(patsubst prep-%,%,$@)"; \
-	$(call prep,$$d)
 
 push-%:
 	d="$(patsubst push-%,%,$@)"; \
@@ -122,7 +112,6 @@ promote:
 	done
 
 clean:
-	-for d in $(TARGETS); do test -d $$d/local && rm -rf $$d/local; done
 	-rm log-* *.log
 
 clean-images:
@@ -138,12 +127,10 @@ clean-all-images: clean-images clean-dangling-images
 	docker images | grep -v -F -e REPOSITORY -e '<none>' | awk '{print $$1 ":" $$2 }' | uniq | xargs -r docker rmi
 	docker images | grep -v -F -e REPOSITORY | awk '{print $$3}' | uniq | xargs -r docker rmi
 
-## todo: need to call prep to update local
 update-image:
 	@if [ -z "$(DISTRO)" ]; then echo "use: make update-image DISTRO=distribution" ; exit 1; fi
 	PLATFORM="$$(docker manifest inspect $(REGISTRY)/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | grep -v unknown | sed 's/"//g;s/\/$$//' | tr '\n'  ',' | sed 's/,$$//;s/arm$$/arm\/v7l/')"; \
     echo "platforms: $$PLATFORM"; \
-    $(call prep,update-image); \
     docker buildx build -t "$(REGISTRY)/buildfarm$(EXTRATAG)-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
 
 help:
