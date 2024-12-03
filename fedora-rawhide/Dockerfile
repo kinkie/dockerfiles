@@ -1,3 +1,5 @@
+#PLATFORMS linux/amd64,linux/arm64,linux/mips64le,linux/ppc64le
+
 ARG DISTRO=fedora
 ARG VERSION=rawhide
 ARG RELEASE=30

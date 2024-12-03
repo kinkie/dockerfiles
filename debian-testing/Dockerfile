@@ -1,5 +1,4 @@
-#ta$@/loemplate dockerfile to build a centos-based build image
-# run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
+#PLATFORMS linux/amd64,linux/arm64,linux/arm/v7,linux/riscv64,linux/mips64le,linux/ppc64le
 
 ARG distro=debian
 ARG version=testing

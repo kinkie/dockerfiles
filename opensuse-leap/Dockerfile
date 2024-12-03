@@ -1,3 +1,5 @@
+#PLATFORMS linux/amd64,linux/arm64,linux/mips64le,linux/ppc64le
+
 # note: standard gcc and clang have issues with some c++17 support 2023-12-22
 
 ARG DISTRO=opensuse/leap

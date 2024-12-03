@@ -1,3 +1,5 @@
+#PLATFORMS linux/amd64,linux/arm64,linux/arm/v7,linux/riscv64,linux/ppc64le
+
 # EOL Jul 2025
 
 ARG distro=ubuntu

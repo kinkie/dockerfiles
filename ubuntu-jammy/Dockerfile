@@ -1,3 +1,5 @@
+#PLATFORMS linux/amd64,linux/arm64,linux/arm/v7,linux/riscv64,linux/mips64le,linux/ppc64le
+
 # EOL Apr 2032
 
 ARG distro=ubuntu

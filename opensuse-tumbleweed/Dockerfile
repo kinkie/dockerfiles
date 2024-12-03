@@ -1,3 +1,5 @@
+#PLATFORMS linux/amd64,linux/arm64,linux/mips64le,linux/ppc64le
+
 ARG DISTRO=opensuse
 ARG REPO=${DISTRO}/tumbleweed
 ARG VERSION=latest

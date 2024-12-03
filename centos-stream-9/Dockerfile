@@ -1,5 +1,4 @@
-#template dockerfile to build a centos-based build image
-# run with "docker build --rm -t farm-centos-XXX Dockerfile.centos"
+#PLATFORMS linux/amd64,linux/arm64
 
 FROM quay.io/centos/centos:stream9
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"

@@ -1,4 +1,5 @@
 # EOL Nov 2025
+#PLATFORMS linux/amd64,linux/arm64,linux/mips64le,linux/ppc64le
 
 ARG DISTRO=fedora
 ARG VERSION=41
