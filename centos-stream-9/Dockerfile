@@ -1,4 +1,4 @@
-#PLATFORMS linux/amd64,linux/arm64
+#PLATFORMS amd64,arm64
 
 FROM quay.io/centos/centos:stream9
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"

@@ -1,4 +1,4 @@
-#PLATFORMS linux/amd64,linux/arm64,linux/mips64le,linux/ppc64le
+#PLATFORMS amd64,arm64,mips64le,ppc64le
 # EOL May 2025
 
 ARG DISTRO=fedora
