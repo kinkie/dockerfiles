@@ -59,7 +59,6 @@ RUN \
   groupadd -g 1001 kinkie && \
   useradd -u 1001 -m -g kinkie kinkie && \
   true
-COPY local/run-slave.sh /usr/local/bin
 
 USER jenkins
 CMD ["/bin/bash", "-l"]
