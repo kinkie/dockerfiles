@@ -13,7 +13,7 @@ PUSH_TARGETS:=$(patsubst %,push-%,$(TARGETS))
 .PHONY: $(ALL_TARGETS) combination-filter update-image
 
 # must be one of amd64, arm/v7l, arm64/v8, riscv64
-ARCH:=$(uname -m)
+ALL_PLATFORMS=amd64 arm64 arm riscv64 mips64le ppc64le
 
 BUILDOPTS=
 BUILDOPTS+=--pull
@@ -24,8 +24,7 @@ else
 EXTRATAG:=
 endif
 
-DATE=$(shell date +%y%m%d)
-
+DATE:=$(shell date +%y%m%d)
 
 default: help
 
@@ -36,38 +35,31 @@ list:
 targets:
 	@echo "$(TARGETS)"
 
-combination-filter:
-	@for OS in $(TARGETS) ; do for CPU in armv7l aarch64 i386 amd64 riscv64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
-
+# TODO: platforms doesn't have i386
 exclude-list:
-	@for OS in $(TARGETS) ; do \
-        for CPU in armv7l aarch64 i386 amd64 riscv64; do \
-            test -e "$$OS/skip-$$CPU" && \
+	@for CPU in $(ALL_PLATFORMS); do \
+		for OS in $(TARGETS) ; do \
+            grep -q "PLATFORMS.*\<$$CPU\>" $$OS/Dockerfile || \
                 echo "          - { platform: $$CPU, os: $$OS }" ;\
         done; \
-    done | sed 's!armv7l!arm/v7!g'
+    done # | sed 's/\<arm\>/&\/v7/g'
 
 # assume it's run on amd64
 $(ALL_TARGETS):
+	-rm $@.ok $@.fail
 	@TGT=$@; \
-	IMAGELABEL="$(REGISTRY)/buildfarm$(EXTRATAG)-$$TGT:$${TAG:-latest}" ; \
-	test -e $$TGT/skip-amd64 || PLATFORM="$$PLATFORM$${PLATFORM+,}amd64" ; \
-	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM$${PLATFORM+,}i386" ; \
-	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm64" ; \
-	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm/v7" ; \
-	test -e $$TGT/skip-riscv64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/riscv64" ; \
-	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL. Output in $@.log" ; \
-    if [ "$(SYSTEM)" != "Darwin" ]; then PLATFORM="--platform $$PLATFORM"; else PLATFORM=""; fi; \
-    echo "docker buildx build --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t \"$$IMAGELABEL\" $$PLATFORM --push $$TGT" && \
-	if docker buildx build --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --push $$TGT >>$@.log 2>&1 ; \
-	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.fail.log"; mv $@.log $@.fail.log; fi
+	IMAGELABELBASE="$(REGISTRY)/buildfarm$(EXTRATAG)-$$TGT" ; \
+	IMAGELABEL="-t $$IMAGELABELBASE:latest -t $$IMAGELABELBASE:$(DATE)" ;\
+	PLATFORM=`grep PLATFORMS $$TGT/Dockerfile | sed 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!\<arm\>!arm/v7!g;s! !,!g'` ;\
+	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL" ; \
+    if docker buildx build $$IMAGELABEL --platform $$PLATFORM --push $$TGT ; then \
+	  touch $$TGT.ok; else touch $$TGT.fail ; \
+	fi
+
 
 #	if docker buildx build --builder squid --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --output type=image,name=$(REGISTRY)/$$TGT,push=true $$TGT >>$@.log 2>&1 ; \
 
-# buildx all
-all: $(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-build))),$(TARGETS))
-
-push: $(PUSH_TARGETS)
+all: $(TARGETS)
 
 # promote "latest" image to "stable" in the repository
 promote-%:
