@@ -1,4 +1,4 @@
-#PLATFORMS amd64 arm64 arm riscv64 mips64le ppc64le
+#PLATFORMS amd64 arm64 arm riscv64 ppc64le
 
 # EOL Apr 2032
 
