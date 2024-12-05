@@ -1,4 +1,4 @@
-#PLATFORMS amd64,arm64,arm,riscv64,mips64le,ppc64le
+#PLATFORMS amd64 arm64 arm riscv64 mips64le ppc64le i386
 
 ARG distro=debian
 ARG version=unstable

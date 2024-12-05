@@ -1,4 +1,4 @@
-#PLATFORMS amd64,arm64,mips64le,ppc64le
+#PLATFORMS amd64 arm64 mips64le ppc64le
 
 # note: standard gcc and clang have issues with some c++17 support 2023-12-22
 

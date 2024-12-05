@@ -1,3 +1,5 @@
+#PLATFORMS amd64 arm64 i386
+# more platforms TBD
 FROM gentoo/stage3:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
@@ -39,7 +41,7 @@ RUN \
   useradd -u 1000 -g jenk -m jenk && \
   true
 
-#    app-text/pandoc \ # pandoc required ghc which fails building on an internal error 
+#    app-text/pandoc \ # pandoc required ghc which fails building on an internal error
 USER jenkins
 CMD ["/bin/bash", "-l"]
 

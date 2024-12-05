@@ -1,4 +1,4 @@
-#PLATFORMS amd64,arm64,mips64le,ppc64le
+#PLATFORMS amd64 arm64 mips64le ppc64le
 
 ARG DISTRO=opensuse
 ARG REPO=${DISTRO}/tumbleweed
