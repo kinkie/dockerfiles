@@ -1,7 +1,6 @@
 # REGISTRY:=ghcr.io/kinkie/dockerfiles
 REGISTRY:=docker.io/squidcache
 
-CPU:=$(shell uname -m)
 SYSTEM:=$(shell uname -s)
 # define PUSH to push upon build
 ALL_TARGETS:=$(sort $(patsubst %/,%,$(dir $(wildcard */Dockerfile))))
@@ -10,11 +9,11 @@ TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip))),$(ALL_TARGETS))
 # nor if it has a file "skip-`uname -m`"
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-$(CPU)))),$(TARGETS))
 PUSH_TARGETS:=$(patsubst %,push-%,$(TARGETS))
-IS_PARALLEL=$(if $(findstring jobserver,$(MFLAGS)),1)
+# IS_PARALLEL=$(if $(findstring jobserver,$(MFLAGS)),1)
 .PHONY: $(ALL_TARGETS) combination-filter update-image
 
 # must be one of amd64, arm/v7l, arm64/v8, riscv64
-ARCH:=$(uname -m)
+ALL_PLATFORMS=amd64 arm64 arm riscv64 mips64le ppc64le
 
 BUILDOPTS=
 BUILDOPTS+=--pull
@@ -25,30 +24,7 @@ else
 EXTRATAG:=
 endif
 
-DATE=$(shell date +%y%m%d)
-
-# ifneq ("$(LOG)", "")
-# LOGCMD=2>&1 | tee -a $(LOG)
-# endif
-
-# args: distro, tag
-make_manifest = \
-	docker manifest rm $(REGISTRY)/buildfarm-$(1):$(2) || true &&  \
-	docker manifest create $(REGISTRY)/buildfarm-$(1):$(2) \
-		$(REGISTRY)/buildfarm-x86_64-$(1):$(2) \
-	$(if $(wildcard $(1)/skip-aarch64),, $(REGISTRY)/buildfarm-aarch64-$(1):$(2)) \
-	$(if $(wildcard $(1)/skip-armv7l),, $(REGISTRY)/buildfarm-armv7l-$(1):$(2))
-
-# args: distro, tag
-push_manifest = \
-	docker manifest push $(REGISTRY)/buildfarm-$(1):$(2)
-
-# args: distro, tag
-push_image = \
-	 docker push $(REGISTRY)/buildfarm$(EXTRATAG)-$(CPU)-$(1):$(2)
-
-testme:
-	$(call make_manifest,centos-stream-8,latest)
+DATE:=$(shell date +%y%m%d)
 
 default: help
 
@@ -59,52 +35,37 @@ list:
 targets:
 	@echo "$(TARGETS)"
 
-combination-filter:
-	@for OS in $(TARGETS) ; do for CPU in armv7l aarch64 i386 amd64 riscv64; do [ -e "$$OS/skip-$$CPU" ] && echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; done; done || true; echo "true"
-
+# TODO: platforms doesn't have i386
 exclude-list:
-	@for OS in $(TARGETS) ; do \
-        for CPU in armv7l aarch64 i386 amd64 riscv64; do \
-            test -e "$$OS/skip-$$CPU" && \
+	@for CPU in $(ALL_PLATFORMS); do \
+		for OS in $(TARGETS) ; do \
+            grep -q "PLATFORMS.*\<$$CPU\>" $$OS/Dockerfile || \
                 echo "          - { platform: $$CPU, os: $$OS }" ;\
         done; \
-    done | sed 's!armv7l!arm/v7!g'
+    done # | sed 's/\<arm\>/&\/v7/g'
 
 # assume it's run on amd64
 $(ALL_TARGETS):
+	-rm $@.ok $@.fail
 	@TGT=$@; \
-	IMAGELABEL="$(REGISTRY)/buildfarm$(EXTRATAG)-$$TGT:$${TAG:-latest}" ; \
-	test -e $$TGT/skip-amd64 || PLATFORM="$$PLATFORM$${PLATFORM+,}amd64" ; \
-	test -e $$TGT/skip-i386 || PLATFORM="$$PLATFORM$${PLATFORM+,}i386" ; \
-	test -e $$TGT/skip-aarch64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm64" ; \
-	test -e $$TGT/skip-armv7l || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/arm/v7" ; \
-	test -e $$TGT/skip-riscv64 || PLATFORM="$$PLATFORM$${PLATFORM+,}linux/riscv64" ; \
-	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL. Output in $@.log" ; \
-    if [ "$(SYSTEM)" != "Darwin" ]; then PLATFORM="--platform $$PLATFORM"; else PLATFORM=""; fi; \
-    echo "docker buildx build --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t \"$$IMAGELABEL\" $$PLATFORM --push $$TGT" && \
-	if docker buildx build --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --push $$TGT >>$@.log 2>&1 ; \
-	then echo "SUCCESS for $$TGT"; mv $@.log $@.ok.log; else echo "FAILURE for $$TGT -log in $@.fail.log"; mv $@.log $@.fail.log; fi
+	IMAGELABELBASE="$(REGISTRY)/buildfarm$(EXTRATAG)-$$TGT" ; \
+	IMAGELABEL="-t $$IMAGELABELBASE:latest -t $$IMAGELABELBASE:$(DATE)" ;\
+	PLATFORM=`grep PLATFORMS $$TGT/Dockerfile | sed 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!\<arm\>!arm/v7!g;s! !,!g'` ;\
+	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL" ; \
+    if docker buildx build $$IMAGELABEL --platform $$PLATFORM --push $$TGT ; then \
+	  touch $$TGT.ok; else touch $$TGT.fail ; \
+	fi
+
 
 #	if docker buildx build --builder squid --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --output type=image,name=$(REGISTRY)/$$TGT,push=true $$TGT >>$@.log 2>&1 ; \
 
-# buildx all
-all: $(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-build))),$(TARGETS))
-
-push: $(PUSH_TARGETS)
-#	$(call push_manifest,gentoo,latest)
-#	for d in $(TARGETS); do $(call push_image,$$d,latest); $(call make_manifest,$$d,latest); $(call push_manifest,$$d,latest); done
-
-push-%:
-	d="$(patsubst push-%,%,$@)"; \
-	$(call push_image,$$d,latest) ; \
-	$(call make_manifest,$$d,latest) ; \
-	$(call push_manifest,$$d,latest) 
+all: $(TARGETS)
 
 # promote "latest" image to "stable" in the repository
 promote-%:
 	d="$(patsubst promote-%,%,$@)"; \
     docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:oldstable $(REGISTRY)/buildfarm-$$d:stable ; \
-	docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:stable $(REGISTRY)/buildfarm-$$d:latest 
+	docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:stable $(REGISTRY)/buildfarm-$$d:latest
 
 promote:
 	for d in $(TARGETS); do \
