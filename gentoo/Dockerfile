@@ -1,4 +1,4 @@
-#PLATFORMS amd64 arm64 i386
+#PLATFORMS amd64 arm64 i386 riscv64
 # more platforms TBD
 FROM gentoo/stage3:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
