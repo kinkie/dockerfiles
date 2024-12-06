@@ -6,11 +6,9 @@ SYSTEM:=$(shell uname -s)
 ALL_TARGETS:=$(sort $(patsubst %/,%,$(dir $(wildcard */Dockerfile))))
 # if a dir has a file named "skip" or "skip-build" (enforced later), don't build for it
 TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip))),$(ALL_TARGETS))
-# nor if it has a file "skip-`uname -m`"
-TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-$(CPU)))),$(TARGETS))
-PUSH_TARGETS:=$(patsubst %,push-%,$(TARGETS))
+BUILD_TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-build))),$(TARGETS))
 # IS_PARALLEL=$(if $(findstring jobserver,$(MFLAGS)),1)
-.PHONY: $(ALL_TARGETS) combination-filter update-image
+.PHONY: $(ALL_TARGETS) exclude-list update-image
 
 # must be one of amd64, arm/v7l, arm64/v8, riscv64
 ALL_PLATFORMS=amd64 arm64 arm riscv64 mips64le ppc64le
@@ -31,6 +29,7 @@ default: help
 list:
 	@echo "all possible targets:"; echo "$(ALL_TARGETS)"; echo
 	@echo "actual targets:"; echo "$(TARGETS)"; echo
+	@echo "'make all' will build:"; echo "$(BUILD_TARGETS)"; echo
 
 targets:
 	@echo "$(TARGETS)"
@@ -59,7 +58,7 @@ $(ALL_TARGETS):
 
 #	if docker buildx build --builder squid --progress=plain $${proxy:+--build-arg http_proxy=$$proxy} -t "$$IMAGELABEL" $$PLATFORM --output type=image,name=$(REGISTRY)/$$TGT,push=true $$TGT >>$@.log 2>&1 ; \
 
-all: $(TARGETS)
+all: $(BUILD_TARGETS)
 
 # promote "latest" image to "stable" in the repository
 promote-%:
