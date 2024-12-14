@@ -1,20 +1,17 @@
-#PLATFORMS amd64 arm64 i386 riscv64
-# more platforms TBD
+#PLATFORMS amd64 arm arm64 riscv64
+# i386 disabled because in docker uname -m returns wrong arch, confusing blake3
+# See https://packages.gentoo.org/packages/dev-libs/blake3
 FROM gentoo/stage3:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
-RUN \
-  echo 'USE="-X -alsa* -apache2* -fortran -office_implementation_libreoffice -ada* -lcd* -libreoffice* -video* -xtables* -perl"' >>/etc/portage/make.conf && \
-  if [ "`uname -m`" = "armv7l" ]; then \
-    echo 'EMERGE_DEFAULT_OPTS="--jobs 1"' >> /etc/portage/make.conf ; \
-    echo 'MAKEOPTS="-j2"' >> /etc/portage/make.conf; \
-  fi && \
-  true
-RUN \
+RUN \$
+  echo 'USE="-X -fortran -objc -objc++ -rust -readline -xattr -nls -office_implementation_libreoffice minimal"' >>/etc/portage/make.conf && \
+  echo "MAKEOPTS=\"--jobs `nproc` --load-average $[`nproc`+1]\"" >>/etc/portage/make.conf && \
   emerge-webrsync && \
   emaint sync -ay >/dev/null && \
   eselect news read >/dev/null && \
   true
+
 RUN \
   emerge -q \
     dev-util/ccache \
@@ -23,7 +20,7 @@ RUN \
     gentoolkit \
     net-nds/openldap \
     sys-apps/ed \
-    sys-devel/clang \
+    llvm-core/clang \
     sys-libs/libcap \
     sys-libs/tdb \
     && \

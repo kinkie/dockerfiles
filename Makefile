@@ -38,8 +38,9 @@ targets:
 exclude-list:
 	@for CPU in $(ALL_PLATFORMS); do \
 		for OS in $(TARGETS) ; do \
-            grep -q "PLATFORMS.*\<$$CPU\>" $$OS/Dockerfile || \
+			if ! grep -q "PLATFORMS.*\<$$CPU\>" $$OS/Dockerfile; then \
                 echo "          - { platform: $$CPU, os: $$OS }" ;\
+			fi ; \
         done; \
     done # | sed 's/\<arm\>/&\/v7/g'
 
@@ -94,6 +95,7 @@ update-image:
     docker buildx build -t "$(REGISTRY)/buildfarm$(EXTRATAG)-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
 
 help:
-	@echo "possible targets: list, all, clean, clean-images, push, push-latest, promote, all-with-logs, combination-filter"
-	@echo "BUILDOPTS: $(BUILDOPTS)"
-	@echo "images that can be built: $(TARGETS)"
+	@echo "possible targets:"
+	@echo "  list, targets, exclude-list"
+	@echo "  all: build targets in 'make list'"
+	@echo "  promote, promote-<target>, update-image DISTRO=<image>"
