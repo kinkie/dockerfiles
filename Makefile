@@ -43,8 +43,6 @@ exclude-list:
         done; \
     done # | sed 's/\<arm\>/&\/v7/g'
 
-combinations:
-
 
 # assume it's run on amd64
 $(ALL_TARGETS):
