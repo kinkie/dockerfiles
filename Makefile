@@ -11,7 +11,7 @@ BUILD_TARGETS:=$(filter-out $(patsubst %/,%,$(dir $(wildcard */skip-build))),$(T
 .PHONY: $(ALL_TARGETS) exclude-list update-image
 
 # must be one of amd64, arm/v7l, arm64/v8, riscv64
-ALL_PLATFORMS=amd64 arm64 arm riscv64 mips64le ppc64le
+ALL_PLATFORMS=amd64 i386 arm64 arm riscv64 mips64le ppc64le
 
 BUILDOPTS=
 BUILDOPTS+=--pull
@@ -34,7 +34,6 @@ list:
 targets:
 	@echo "$(TARGETS)"
 
-# TODO: platforms doesn't have i386
 exclude-list:
 	@for CPU in $(ALL_PLATFORMS); do \
 		for OS in $(TARGETS) ; do \
@@ -43,6 +42,9 @@ exclude-list:
 			fi ; \
         done; \
     done # | sed 's/\<arm\>/&\/v7/g'
+
+combinations:
+
 
 # assume it's run on amd64
 $(ALL_TARGETS):
