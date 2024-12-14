@@ -1,5 +1,6 @@
 # REGISTRY:=ghcr.io/kinkie/dockerfiles
 REGISTRY:=docker.io/squidcache
+TEST_REPO:=https://github.com/squid-cache/squid
 
 SYSTEM:=$(shell uname -s)
 # define PUSH to push upon build
@@ -43,6 +44,28 @@ exclude-list:
         done; \
     done # | sed 's/\<arm\>/&\/v7/g'
 
+# form: test_<os>_<arch>
+test_%:
+	@os=$(word 2,$(subst _, ,$@)); \
+	arch=$(word 3,$(subst _, ,$@)); \
+	echo "testing os: $$os, arch: $$arch. Output in test-$$os-$$arch.out" ;\
+	docker run -i --rm --platform $$arch \
+		"$(REGISTRY)/buildfarm$(EXTRATAG)-$$os:latest" bash -c \
+		"cd && git clone --depth=1 $(TEST_REPO) && cd squid && ./test-builds.sh layer-02-maximus" \
+		>test-$$os-$$arch.out 2>test-$$os-$$arch.err && \
+		touch test-$$os-$$arch.ok || \
+		touch test-$$os-$$arch.fail
+
+test:
+	@targets=""; \
+	for os in $(TARGETS) ; do \
+		for arch in $(ALL_PLATFORMS); do \
+			if grep -q "PLATFORMS.*\<$$arch\>" $$os/Dockerfile; then \
+				targets="$${targets} test_$${os}_$${arch}" ;\
+			fi ;\
+		done ;\
+	done; \
+	$(MAKE) $$targets
 
 # assume it's run on amd64
 $(ALL_TARGETS):
@@ -99,3 +122,4 @@ help:
 	@echo "  list, targets, exclude-list"
 	@echo "  all: build targets in 'make list'"
 	@echo "  promote, promote-<target>, update-image DISTRO=<image>"
+	@echo "  test: try a squid build on all cpu-arch combos with latest image"
