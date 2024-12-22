@@ -1,5 +1,5 @@
 # REGISTRY:=ghcr.io/kinkie/dockerfiles
-REGISTRY:=docker.io/squidcache
+REGISTRY:=squidcache
 TEST_REPO:=https://github.com/squid-cache/squid
 
 SYSTEM:=$(shell uname -s)
@@ -33,7 +33,7 @@ list:
 	@echo "'make all' will build:"; echo "$(BUILD_TARGETS)"; echo
 
 targets:
-	@echo "$(TARGETS)"
+	@for tgt in $(TARGETS); do echo "- $$tgt"; done
 
 exclude-list:
 	@for CPU in $(ALL_PLATFORMS); do \
@@ -51,10 +51,12 @@ test_%:
 	echo "testing os: $$os, arch: $$arch. Output in test-$$os-$$arch.out" ;\
 	docker run -i --rm --platform $$arch \
 		"$(REGISTRY)/buildfarm$(EXTRATAG)-$$os:latest" bash -c \
-		"cd && git clone --depth=1 $(TEST_REPO) && cd squid && ./test-builds.sh layer-02-maximus" \
+		"export pjobs=\"-j`nproc` -l`nproc`\" && cd && git clone --depth=1 $(TEST_REPO) && cd squid && ./test-builds.sh layer-02-maximus" \
 		>test-$$os-$$arch.out 2>test-$$os-$$arch.err && \
 		touch test-$$os-$$arch.ok || \
 		touch test-$$os-$$arch.fail
+	docker ps --format '{{.Image}}' | grep -q "buildfarm$(EXTRATAG)-$$os:latest" || \
+        docker rmi "$(REGISTRY)/buildfarm$(EXTRATAG)-$$os:latest"
 
 test:
 	@targets=""; \
@@ -96,7 +98,7 @@ promote:
 	done
 
 clean:
-	-rm log-* *.log
+	-rm log-* *.log *.out *.err *.ok *.fail
 
 clean-images:
 	docker container prune -f
