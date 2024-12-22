@@ -51,10 +51,10 @@ test_%:
 	echo "testing os: $$os, arch: $$arch. Output in test-$$os-$$arch.out" ;\
 	docker run -i --rm --platform $$arch \
 		"$(REGISTRY)/buildfarm$(EXTRATAG)-$$os:latest" bash -c \
-		"export pjobs=\"-j`nproc` -l`nproc`\" && cd && git clone --depth=1 $(TEST_REPO) && cd squid && ./test-builds.sh layer-02-maximus" \
+		"export pjobs=\"-j`nproc` -l`nproc`\" && cd && git clone --depth=1 $(TEST_REPO) && cd squid && ./test-builds.sh --verbose layer-02-maximus" \
 		>test-$$os-$$arch.out 2>test-$$os-$$arch.err && \
 		touch test-$$os-$$arch.ok || \
-		touch test-$$os-$$arch.fail
+		touch test-$$os-$$arch.fail ; \
 	docker ps --format '{{.Image}}' | grep -q "buildfarm$(EXTRATAG)-$$os:latest" || \
         docker rmi "$(REGISTRY)/buildfarm$(EXTRATAG)-$$os:latest"
 
