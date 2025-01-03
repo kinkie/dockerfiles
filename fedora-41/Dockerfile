@@ -1,11 +1,12 @@
 # EOL Nov 2025
 #PLATFORMS amd64 arm64 ppc64le
 
-ARG DISTRO=fedora
-ARG VERSION=41
-FROM ${DISTRO}:${VERSION}
+ARG distro=fedora
+ARG version=41
+FROM ${distro}:${version}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
+LABEL description="${distro} ${version} userland used to build Squid"
 #  yum clean all && yum swap fakesystemd systemd \
 RUN \
   dnf install -y \

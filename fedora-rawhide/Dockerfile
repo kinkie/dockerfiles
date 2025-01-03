@@ -1,11 +1,11 @@
 #PLATFORMS amd64 arm64 ppc64le
 
-ARG DISTRO=fedora
-ARG VERSION=rawhide
-ARG RELEASE=30
-FROM ${DISTRO}:${VERSION}
+ARG distro=fedora
+ARG version=rawhide
+FROM ${distro}:${version}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
+LABEL description="${distro} ${version} userland used to build Squid"
 #  dnf clean all && yum swap fakesystemd systemd \
 #  dnf -y update --releasever=30 fedora-repos\* fedora-release dnf && \
 #  rpm --import https://src.fedoraproject.org/rpms/fedora-repos/raw/master/f/RPM-GPG-KEY-fedora-32-primary && \

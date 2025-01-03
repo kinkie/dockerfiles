@@ -6,7 +6,8 @@ ARG distro=ubuntu
 ARG version=jammy
 FROM ${distro}:${version}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
+LABEL description="${distro} ${version} userland used to build Squid"
 RUN \
   sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list && \
   apt-get update && \

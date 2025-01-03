@@ -2,7 +2,8 @@
 # squid build image, plus wine development
 FROM squidcache/buildfarm-ubuntu-noble:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
+LABEL description="${distro} ${version} userland used to build Squid"
 USER root
 RUN \
   apt -y update && \

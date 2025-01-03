@@ -8,6 +8,8 @@
 
 FROM squidcache/buildfarm-ubuntu-noble:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/coverity"
+LABEL description="Userland needed to use Coverity Scan on Squid"
 
 ADD cov-analysis-linux64.tar.gz /usr/local
 ADD coverity.sh /etc/profile.d/

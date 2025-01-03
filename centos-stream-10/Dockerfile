@@ -1,8 +1,12 @@
 #PLATFORMS amd64 arm64
 
-FROM quay.io/centos/centos:stream10
+ARG distro=centos
+ARG variant=stream
+ARG version=10
+FROM quay.io/${distro}/${distro}:${variant}${version}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${variant}-${version}"
+LABEL description="${distro} ${variant} ${version} userland used to build Squid"
 RUN \
   dnf -y install dnf-plugins-core && \
   dnf install -y epel-release 'dnf-command(config-manager)' && \

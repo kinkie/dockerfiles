@@ -1,11 +1,11 @@
 #PLATFORMS amd64 arm64 ppc64le
 
-ARG DISTRO=opensuse
-ARG REPO=${DISTRO}/tumbleweed
-ARG VERSION=latest
-FROM ${REPO}:${VERSION}
+ARG distro=opensuse
+ARG version=tumbleweed
+FROM ${distro}/${version}:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
+LABEL description="${distro} ${version} userland used to build Squid"
 RUN \
   zypper --non-interactive up && \
   zypper --non-interactive install --no-confirm --auto-agree-with-licenses --force-resolution \

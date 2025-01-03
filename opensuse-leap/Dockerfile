@@ -2,11 +2,12 @@
 
 # note: standard gcc and clang have issues with some c++17 support 2023-12-22
 
-ARG DISTRO=opensuse/leap
-ARG VERSION=latest
-FROM ${DISTRO}:${VERSION}
+ARG distro=opensuse
+ARG version=leap
+FROM ${distro}/${version}:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
+LABEL description="${distro} ${version} userland used to build Squid"
 RUN \
   zypper --non-interactive up && \
   zypper --non-interactive install --no-confirm --auto-agree-with-licenses --force-resolution \

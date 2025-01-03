@@ -1,10 +1,12 @@
 #PLATFORMS amd64 arm arm64 riscv64
 # i386 disabled because in docker uname -m returns wrong arch, confusing blake3
 # See https://packages.gentoo.org/packages/dev-libs/blake3
-FROM gentoo/stage3:latest
+ARG distro=gentoo
+FROM ${distro}/stage3:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles"
-RUN \$
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}"
+LABEL description="${distro} userland used to build Squid"
+RUN \
   echo 'USE="-X -fortran -objc -objc++ -rust -readline -xattr -nls -office_implementation_libreoffice minimal"' >>/etc/portage/make.conf && \
   echo "MAKEOPTS=\"--jobs `nproc` --load-average $[`nproc`+1]\"" >>/etc/portage/make.conf && \
   emerge-webrsync && \
