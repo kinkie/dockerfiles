@@ -44,6 +44,15 @@ exclude-list:
         done; \
     done # | sed 's/\<arm\>/&\/v7/g'
 
+combination-filter:
+	@for CPU in $(ALL_PLATFORMS); do \
+		for OS in $(TARGETS) ; do \
+			if ! grep -q "PLATFORMS.*\<$$CPU\>" $$OS/Dockerfile; then \
+                echo -n "!(OS == \"$$OS\" && CPU == \"$$CPU\") && " ; \
+			fi ; \
+        done; \
+    done ; echo "true"
+
 # form: test_<os>_<arch>
 test_%:
 	@os=$(word 2,$(subst _, ,$@)); \
