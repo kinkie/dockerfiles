@@ -2,25 +2,22 @@
 
 FROM squidcache/buildfarm-fedora-41:latest
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
-LABEL description="${distro} ${version} userland used to build Squid"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/fedora-mingw"
+LABEL description="Fedora MinGW userland used to build Squid"
 USER root
 RUN \
-  yum update && \
-  dnf install -y \
+  dnf -y update && \
+  dnf -y install \
     mingw64-binutils \
-    mingw64-expat \
     mingw64-gcc-c++ \
-    mingw64-libgnurx \
-    mingw64-libxml2 \
-    mingw64-llvm \
+    mingw64-libgnurx-static \
     mingw64-nettle \
     mingw64-openssl \
     mingw64-winpthreads \
-    mingw64-yaml-cpp \
     mingw64-zlib \
+    wine \
   && \
-  yum clean all
+  dnf -y clean all
 
 USER jenkins
 CMD ["/bin/bash", "-l"]
