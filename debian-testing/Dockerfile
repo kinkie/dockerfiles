@@ -1,4 +1,4 @@
-#PLATFORMS amd64 arm64 arm riscv64 mips64le ppc64le i386
+#PLATFORMS amd64 arm64 arm riscv64 ppc64le i386
 
 ARG distro=debian
 ARG version=testing
