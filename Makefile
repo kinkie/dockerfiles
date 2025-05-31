@@ -16,14 +16,10 @@ ALL_PLATFORMS=amd64 i386 arm64 arm riscv64 mips64le ppc64le
 
 BUILDOPTS=
 BUILDOPTS+=--pull
-#BUILDIOTS+=--no-cache
-ifeq ("$(SYSTEM)", "Darwin")
-EXTRATAG:=-mac
-else
 EXTRATAG:=
-endif
 
 DATE:=$(shell date +%y%m%d)
+SED:=sed
 
 default: help
 
@@ -42,7 +38,7 @@ exclude-list:
                 echo "          - { platform: $$CPU, os: $$OS }" ;\
 			fi ; \
         done; \
-    done # | sed 's/\<arm\>/&\/v7/g'
+    done # | $(SED) 's/\<arm\>/&\/v7/g'
 
 combination-filter:
 	@for CPU in $(ALL_PLATFORMS); do \
@@ -84,9 +80,9 @@ $(ALL_TARGETS):
 	@TGT=$@; \
 	IMAGELABELBASE="$(REGISTRY)/buildfarm$(EXTRATAG)-$$TGT" ; \
 	IMAGELABEL="-t $$IMAGELABELBASE:latest -t $$IMAGELABELBASE:$(DATE)" ;\
-	PLATFORM=`grep PLATFORMS $$TGT/Dockerfile | sed 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!\<arm\>!arm/v7!g;s! !,!g'` ;\
+	PLATFORM=`grep PLATFORMS $$TGT/Dockerfile | $(SED) 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!\<arm\>!arm/v7!g;s! !,!g'` ;\
 	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL" ; \
-    if docker buildx build $$IMAGELABEL --platform $$PLATFORM --push $$TGT ; then \
+	if docker buildx build $$IMAGELABEL --platform $$PLATFORM --push $$TGT ; then \
 	  touch $$TGT.ok; else touch $$TGT.fail ; \
 	fi
 
@@ -124,7 +120,7 @@ clean-all-images: clean-images clean-dangling-images
 
 update-image:
 	@if [ -z "$(DISTRO)" ]; then echo "use: make update-image DISTRO=distribution" ; exit 1; fi
-	PLATFORM="$$(docker manifest inspect $(REGISTRY)/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | grep -v unknown | sed 's/"//g;s/\/$$//' | tr '\n'  ',' | sed 's/,$$//;s/arm$$/arm\/v7l/')"; \
+	PLATFORM="$$(docker manifest inspect $(REGISTRY)/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | grep -v unknown | $(SED) 's/"//g;s/\/$$//' | tr '\n'  ',' | $(SED) 's/,$$//;s/arm$$/arm\/v7l/')"; \
     echo "platforms: $$PLATFORM"; \
     docker buildx build -t "$(REGISTRY)/buildfarm$(EXTRATAG)-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
 
