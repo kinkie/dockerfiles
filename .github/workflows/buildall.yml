@@ -51,7 +51,7 @@ jobs:
         id: targets
         run: |
           echo -n "targets=[" >> "$GITHUB_OUTPUT"
-          make targets | sed 's/- /, "/;s/$/"/' | tr -d '\n' | sed 's/^, //' >> "$GITHUB_OUTPUT"
+          make targets | grep -v gentoo | sed 's/- /, "/;s/$/"/' | tr -d '\n' | sed 's/^, //' >> "$GITHUB_OUTPUT"
           echo -n "]" >> "$GITHUB_OUTPUT"
 
 
