@@ -81,7 +81,7 @@ $(ALL_TARGETS):
 	IMAGELABELBASE="$(REGISTRY)/buildfarm$(EXTRATAG)-$$TGT" ; \
 	IMAGELABEL="-t $$IMAGELABELBASE:latest -t $$IMAGELABELBASE:$(DATE)" ;\
 	PLATFORM=`grep PLATFORMS $$TGT/Dockerfile | $(SED) 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!\<arm\>!arm/v7!g;s! !,!g'` ;\
-	echo "building $$TGT on $$PLATFORM , tag $$IMAGELABEL" ; \
+	echo "docker buildx build $$IMAGELABEL --platform $$PLATFORM --push $$TGT" ; \
 	if docker buildx build $$IMAGELABEL --platform $$PLATFORM --push $$TGT ; then \
 	  touch $$TGT.ok; else touch $$TGT.fail ; \
 	fi
