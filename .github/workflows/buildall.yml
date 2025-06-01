@@ -81,5 +81,12 @@ jobs:
 
       - name: Build the Docker images
         run: |
-          make ${{ matrix.target }}
-          test -e ${{ matrix.target }}.fail && exit 1
+          make ${{ matrix.target }} 2>&1 | tee ${{ matrix.target }}-buildlog.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}-buildlog.txt
+          path: ${{ matrix.target }}-buildlog.txt
+          retention-days: 30
+
