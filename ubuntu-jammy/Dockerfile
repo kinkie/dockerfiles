@@ -5,6 +5,8 @@
 ARG distro=ubuntu
 ARG version=jammy
 FROM ${distro}:${version}
+ARG distro
+ARG version
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
 LABEL description="${distro} ${version} userland used to build Squid"

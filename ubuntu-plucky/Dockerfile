@@ -2,12 +2,17 @@
 
 # EOL Jul 2025
 
-ARG distro=ubuntu
-ARG version=plucky
-FROM ${distro}:${version}
+ARG DISTRO="ubuntu"
+ARG VERSION="plucky"
+
+FROM ${DISTRO}:${VERSION}
+ARG DISTRO
+ARG VERSION
+
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
-LABEL description="${distro} ${version} userland used to build Squid"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${DISTRO}-${VERSION}"
+LABEL description="${DISTRO} ${VERSION} userland used to build Squid"
+
 RUN \
   apt-get update && \
   apt-get upgrade -y apt && \

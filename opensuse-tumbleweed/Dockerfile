@@ -3,6 +3,8 @@
 ARG distro=opensuse
 ARG version=tumbleweed
 FROM ${distro}/${version}:latest
+ARG distro
+ARG version
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
 LABEL description="${distro} ${version} userland used to build Squid"

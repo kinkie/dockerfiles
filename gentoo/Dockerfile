@@ -3,6 +3,7 @@
 # See https://packages.gentoo.org/packages/dev-libs/blake3
 ARG distro=gentoo
 FROM ${distro}/stage3:latest
+ARG distro
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}"
 LABEL description="${distro} userland used to build Squid"

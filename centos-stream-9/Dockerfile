@@ -4,6 +4,9 @@ ARG distro=centos
 ARG variant=stream
 ARG version=9
 FROM quay.io/${distro}/${distro}:${variant}${version}
+ARG distro
+ARG variant
+ARG version
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${variant}-${version}"
 LABEL description="${distro} ${variant} ${version} userland used to build Squid"

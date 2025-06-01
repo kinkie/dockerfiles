@@ -3,6 +3,8 @@
 ARG distro=centos
 ARG variant=stream
 ARG version=10
+ARG distro
+ARG variant
 FROM quay.io/${distro}/${distro}:${variant}${version}
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${variant}-${version}"
