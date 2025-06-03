@@ -40,6 +40,16 @@ exclude-list:
         done; \
     done # | $(SED) 's/\<arm\>/&\/v7/g'
 
+json-exclude-list:
+	@printf "[ "; for CPU in $(ALL_PLATFORMS); do \
+		for OS in $(TARGETS) ; do \
+			if ! grep -q "PLATFORMS.*\<$$CPU\>" $$OS/Dockerfile; then \
+                printf "{ platform: '$$CPU', os: '$$OS' }, " ;\
+			fi ; \
+        done; \
+    done | sed 's!, $$!!'; echo " ]"
+
+
 combination-filter:
 	@for CPU in $(ALL_PLATFORMS); do \
 		for OS in $(TARGETS) ; do \
