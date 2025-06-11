@@ -8,15 +8,15 @@ LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}"
 LABEL description="${distro} userland used to build Squid"
 RUN \
+  echo 'FEATURES="-ipc-sandbox -network-sandbox -pid-sandbox"' >>/etc/portage/make.conf && \
   echo 'USE="-X -fortran -objc -objc++ -rust -readline -xattr -nls -office_implementation_libreoffice minimal"' >>/etc/portage/make.conf && \
-  echo "MAKEOPTS=\"--jobs `nproc` --load-average $[`nproc`+1]\"" >>/etc/portage/make.conf && \
   emerge-webrsync && \
   emaint sync -ay >/dev/null && \
   eselect news read >/dev/null && \
   true
 
 RUN \
-  emerge -q \
+  emerge -j`nproc` -l`nproc` -q \
     dev-util/ccache \
     dev-util/cppunit \
     dev-vcs/git \
