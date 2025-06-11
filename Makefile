@@ -104,7 +104,7 @@ all: $(BUILD_TARGETS)
 # promote "latest" image to "stable" in the repository
 promote-%:
 	d="$(patsubst promote-%,%,$@)"; \
-    docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:oldstable $(REGISTRY)/buildfarm-$$d:stable ; \
+    docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:oldstable $(REGISTRY)/buildfarm-$$d:stable || true ; \
 	docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:stable $(REGISTRY)/buildfarm-$$d:latest
 
 promote:
