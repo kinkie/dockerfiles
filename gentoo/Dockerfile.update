@@ -1,0 +1,14 @@
+#PLATFORMS amd64 arm arm64 riscv64
+FROM squidcache/buildfarm-gentoo:latest
+LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}"
+LABEL description="${distro} userland used to build Squid"
+
+USER root
+echo 'FEATURES="-ipc-sandbox -network-sandbox -pid-sandbox"' >>/etc/portage/make.conf && \
+  emerge-webrsync && \
+  emaint sync -ay >/dev/null && \
+  eselect news read >/dev/null && \
+  emerge -j `nproc` -l `nproc` --update --deep --newuse @world
+USER jenkins
+CMD ["/bin/bash", "-l"]
