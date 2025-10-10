@@ -64,7 +64,7 @@ test_%:
 	@os=$(word 2,$(subst _, ,$@)); \
 	arch=$(word 3,$(subst _, ,$@)); \
 	echo "testing os: $$os, arch: $$arch. Output in test-$$os-$$arch.out" ;\
-	docker run -i --rm --platform $$arch \
+	docker run -i --rm --platform linux/$$arch \
 		"$(REGISTRY)/buildfarm$(EXTRATAG)-$$os:latest" bash -c \
 		"export pjobs=\"-j`nproc` -l`nproc`\" && cd && git clone --depth=1 $(TEST_REPO) && cd squid && ./test-builds.sh --verbose layer-02-maximus" \
 		>test-$$os-$$arch.out 2>test-$$os-$$arch.err && \
@@ -90,7 +90,7 @@ $(ALL_TARGETS):
 	@TGT=$@; \
 	IMAGELABELBASE="$(REGISTRY)/buildfarm$(EXTRATAG)-$$TGT" ; \
 	IMAGELABEL="-t $$IMAGELABELBASE:latest -t $$IMAGELABELBASE:$(DATE)" ;\
-	PLATFORM=`grep PLATFORMS $$TGT/Dockerfile | $(SED) 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!\<arm\>!arm/v7!g;s! !,!g'` ;\
+	PLATFORM=`grep PLATFORMS $$TGT/Dockerfile | $(SED) 's!.*PLATFORMS  *!!;s!^!linux/!;s! ! linux/!g;s!\<arm\>!arm/v7!g;s! !,!g'` ;\
 	echo "docker buildx build $$IMAGELABEL --platform $$PLATFORM --push $$TGT" ; \
 	if docker buildx build $$IMAGELABEL --platform $$PLATFORM --push $$TGT ; then \
 	  touch $$TGT.ok; else touch $$TGT.fail ; \
@@ -130,7 +130,7 @@ clean-all-images: clean-images clean-dangling-images
 
 update-image:
 	@if [ -z "$(DISTRO)" ]; then echo "use: make update-image DISTRO=distribution" ; exit 1; fi
-	PLATFORM=`grep PLATFORMS $(DISTRO)/Dockerfile.update | $(SED) 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!\<arm\>!arm/v7!g;s! !,!g' ` ; \
+	PLATFORM=`grep PLATFORMS $(DISTRO)/Dockerfile.update | $(SED) 's!.*PLATFORMS  *!!;s!^!linux/;s! ! linux/!g;s!\<arm\>!arm/v7!g;s! !,!g' ` ; \
 	IMAGELABELBASE="$(REGISTRY)/buildfarm$(EXTRATAG)-$(DISTRO)" ; \
 	IMAGELABEL="-t $$IMAGELABELBASE:latest -t $$IMAGELABELBASE:$(DATE)" ; \
     echo "platforms: $$PLATFORM"; \
