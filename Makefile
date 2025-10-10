@@ -130,9 +130,14 @@ clean-all-images: clean-images clean-dangling-images
 
 update-image:
 	@if [ -z "$(DISTRO)" ]; then echo "use: make update-image DISTRO=distribution" ; exit 1; fi
-	PLATFORM="$$(docker manifest inspect $(REGISTRY)/buildfarm-$(DISTRO) | jq '.manifests[].platform.architecture' | grep -v unknown | $(SED) 's/"//g;s/\/$$//' | tr '\n'  ',' | $(SED) 's/,$$//;s/arm$$/arm\/v7l/')"; \
+	PLATFORM=`grep PLATFORMS $(DISTRO)/Dockerfile.update | $(SED) 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!\<arm\>!arm/v7!g;s! !,!g' ` ; \
+	IMAGELABELBASE="$(REGISTRY)/buildfarm$(EXTRATAG)-$(DISTRO)" ; \
+	IMAGELABEL="-t $$IMAGELABELBASE:latest -t $$IMAGELABELBASE:$(DATE)" ; \
     echo "platforms: $$PLATFORM"; \
-    docker buildx build -t "$(REGISTRY)/buildfarm$(EXTRATAG)-$(DISTRO)" --platform "$$PLATFORM" --push --squash --build-arg distro=$(DISTRO) $${proxy:+--build-arg http_proxy=$$proxy} -f update-image/Dockerfile.update-image update-image
+	echo "docker buildx build $$IMAGELABEL --platform $$PLATFORM --push -f $(DISTRO)/Dockerfile.update $(DISTRO)" ; \
+	if docker buildx build $$IMAGELABEL --platform $$PLATFORM --push -f $(DISTRO)/Dockerfile.update $(DISTRO) ; then \
+	  touch $(DISTRO)-update.ok; else touch $(DISTRO)-update.fail ; \
+	fi
 
 help:
 	@echo "possible targets:"
