@@ -130,7 +130,7 @@ clean-all-images: clean-images clean-dangling-images
 
 update-image:
 	@if [ -z "$(DISTRO)" ]; then echo "use: make update-image DISTRO=distribution" ; exit 1; fi
-	PLATFORM=`grep PLATFORMS $(DISTRO)/Dockerfile.update | $(SED) 's!.*PLATFORMS  *!!;s!^!linux/;s! ! linux/!g;s!\<arm\>!arm/v7!g;s! !,!g' ` ; \
+	PLATFORM=`grep '^#PLATFORMS' $(DISTRO)/Dockerfile.update | $(SED) 's!.*PLATFORMS  *!!;s!^!linux/!;s! ! linux/!g;s!\<arm\>!arm/v7!g;s! !,!g' ` ; \
 	IMAGELABELBASE="$(REGISTRY)/buildfarm$(EXTRATAG)-$(DISTRO)" ; \
 	IMAGELABEL="-t $$IMAGELABELBASE:latest -t $$IMAGELABELBASE:$(DATE)" ; \
     echo "platforms: $$PLATFORM"; \
