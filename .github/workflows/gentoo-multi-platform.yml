@@ -21,7 +21,6 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -30,6 +29,8 @@ jobs:
           - linux/arm/v7
           - linux/arm64
           - linux/riscv64
+    # runs-on: ubuntu-latest
+    runs-on: ${{ matrix.platform == 'linux/arm/v7' && 'ubuntu-24.04-arm64' || matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm64' || 'ubuntu-22.04' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
