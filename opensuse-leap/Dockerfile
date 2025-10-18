@@ -44,11 +44,11 @@ RUN \
   true
 RUN \
   groupadd -g 3128 jenkins && \
-  useradd -u 3128 -g 3128 jenkins && \
+  useradd -u 3128 -g 3128 -m jenkins && \
   groupadd -g 1001 kinkie && \
-  useradd -u 1001 -g 1001 kinkie && \
+  useradd -u 1001 -g 1001 -m kinkie && \
   groupadd -g 1000 jenk && \
-  useradd -u 1000 -g 1000 jenk
+  useradd -u 1000 -g 1000 -m jenk
 
 USER jenkins
 CMD ["/bin/bash", "-l"]
