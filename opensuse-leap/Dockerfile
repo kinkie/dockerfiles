@@ -48,7 +48,8 @@ RUN \
   groupadd -g 1001 kinkie && \
   useradd -u 1001 -g 1001 -m kinkie && \
   groupadd -g 1000 jenk && \
-  useradd -u 1000 -g 1000 -m jenk
+  useradd -u 1000 -g 1000 -m jenk && \
+  for u in jenkins kinkie jenk; do chown -R $u:$u /home/$u ; done
 
 USER jenkins
 CMD ["/bin/bash", "-l"]
