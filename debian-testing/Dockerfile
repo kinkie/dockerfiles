@@ -20,7 +20,6 @@ RUN \
     ccache \
     clang \
     curl \
-    default-jre-headless \
     doxygen \
     ed \
     g++ \

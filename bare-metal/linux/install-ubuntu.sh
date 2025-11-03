@@ -18,7 +18,6 @@ apt -y install \
 	lftp \
     lm-sensors \
 	mosh \
-	openjdk-11-jre-headless \
 	rcs \
 	unattended-upgrades \
 	vim

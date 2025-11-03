@@ -19,14 +19,11 @@ RUN \
     ccache \
     clang \
     curl \
-    default-jre-headless \
     ed \
     g++ \
-    g++-mingw-w64 \
     groff \
     git \
     gnutls-bin \
-    icecc \
     libcap-dev \
     libcppunit-dev \
     libexpat-dev \
