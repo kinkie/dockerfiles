@@ -19,6 +19,7 @@ RUN \
     cppunit-devel \
     diff \
     ed \
+    find \
     gawk \
     gcc-c++ \
     git \
