@@ -1,5 +1,5 @@
-# REGISTRY:=ghcr.io/kinkie/dockerfiles
-REGISTRY:=squidcache
+REGISTRY:=ghcr.io/kinkie/dockerfiles
+# REGISTRY:=squidcache
 TEST_REPO:=https://github.com/squid-cache/squid
 
 SYSTEM:=$(shell uname -s)
