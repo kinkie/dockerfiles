@@ -1,14 +1,18 @@
 #PLATFORMS amd64 arm64 arm riscv64 ppc64le
 # EOL April 2036
 
-ARG distro=ubuntu
-ARG version=noble
-FROM ${distro}:${version}
-ARG distro
-ARG version
+ARG DISTRO=ubuntu
+ARG VERSION=noble
+
+# FROM ${DISTRO}:${VERSION}
+FROM public.ecr.aws/${DISTRO}/${DISTRO}:${VERSION}
+
+ARG DISTRO
+ARG VERSION
+
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
-LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
-LABEL description="${distro} ${version} userland used to build Squid"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${DISTRO}-${VERSION}"
+LABEL description="${DISTRO} ${VERSION} userland used to build Squid"
 RUN \
   apt-get update && \
   apt-get upgrade -y apt && \

@@ -5,7 +5,9 @@
 ARG DISTRO="ubuntu"
 ARG VERSION="plucky"
 
-FROM ${DISTRO}:${VERSION}
+# FROM ${DISTRO}:${VERSION}
+FROM public.ecr.aws/${DISTRO}/${DISTRO}:${VERSION}
+
 ARG DISTRO
 ARG VERSION
 

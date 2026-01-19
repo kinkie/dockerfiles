@@ -3,7 +3,10 @@
 
 ARG distro=ubuntu
 ARG version=focal
-FROM ${distro}:${version}
+
+# FROM ${distro}:${version}
+FROM public.ecr.aws/${distro}/${distro}:${version}
+
 ARG distro
 ARG version
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
