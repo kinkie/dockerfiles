@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${d
 LABEL description="${distro} ${version} userland used to build Squid"
 RUN \
   zypper --non-interactive up && \
-  zypper --non-interactive install --no-confirm --auto-agree-with-licenses --force-resolution \
+  zypper --non-interactive install --no-confirm --auto-agree-with-licenses --force-resolution --no-recommends \
     autoconf \
     automake \
     bzip2 \
@@ -33,7 +33,6 @@ RUN \
     libtool \
     libxml2-devel \
     make \
-    pandoc \
     pkg-config \
     which \
   && \
