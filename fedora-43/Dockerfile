@@ -3,7 +3,10 @@
 
 ARG distro=fedora
 ARG version=43
-FROM ${distro}:${version}
+
+# FROM ${distro}:${version}
+FROM quay.io/${distro}/${distro}:${version}
+
 ARG distro
 ARG version
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
@@ -11,7 +14,7 @@ LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${d
 LABEL description="${distro} ${version} userland used to build Squid"
 #  yum clean all && yum swap fakesystemd systemd \
 RUN \
-  dnf install -y \
+  dnf install -y --setopt=install_weak_deps=False \
     autoconf \
     automake \
     bzip2 \

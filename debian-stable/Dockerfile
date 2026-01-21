@@ -1,8 +1,11 @@
-#PLATFORMS amd64 arm64 arm mips64le ppc64le i386
+#PLATFORMS amd64 arm64 arm ppc64le i386 riscv64
 
 ARG distro=debian
 ARG version=stable
-FROM ${distro}:${version}
+
+# FROM ${distro}:${version}
+FROM public.ecr.aws/docker/library/${distro}:${version}
+
 ARG distro
 ARG version
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"

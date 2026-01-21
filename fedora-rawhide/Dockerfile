@@ -2,7 +2,10 @@
 
 ARG distro=fedora
 ARG version=rawhide
-FROM ${distro}:${version}
+
+# FROM ${distro}:${version}
+FROM quay.io/${distro}/${distro}:${version}
+
 ARG distro
 ARG version
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
@@ -14,7 +17,7 @@ LABEL description="${distro} ${version} userland used to build Squid"
 #    libdb4-devel \
 RUN \
   dnf update -y && \
-  dnf install -y \
+  dnf install -y --setopt=install_weak_deps=False \
     autoconf \
     automake \
     bzip2 \
@@ -30,7 +33,6 @@ RUN \
     git \
     gnutls-devel \
     gnutls-utils \
-    icecream \
     libatomic \
     libcap-devel \
     libtdb-devel \

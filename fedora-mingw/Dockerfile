@@ -1,6 +1,6 @@
 #PLATFORMS amd64
 
-FROM squidcache/buildfarm-fedora-42:latest AS base
+FROM ghcr.io/kinkie/buildfarm-fedora-43:latest AS base
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/fedora-mingw"
 LABEL description="Fedora MinGW userland used to build Squid"

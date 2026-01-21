@@ -1,4 +1,4 @@
-REGISTRY:=ghcr.io/kinkie/dockerfiles
+REGISTRY:=ghcr.io/kinkie
 # REGISTRY:=squidcache
 TEST_REPO:=https://github.com/squid-cache/squid
 
