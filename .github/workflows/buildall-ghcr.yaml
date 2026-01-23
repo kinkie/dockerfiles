@@ -75,8 +75,7 @@ jobs:
         with:
           context: ./${{ matrix.target }}
           platforms: ${{ steps.vars.outputs.platforms }}
-          # push: true
-          push: false
+          push: true
           tags: |
             ${{ env.REGISTRY }}/kinkie/${{ matrix.target }}:latest
             ${{ env.REGISTRY }}/kinkie/${{ matrix.target }}:${{ steps.vars.outputs.today }}
