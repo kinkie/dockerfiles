@@ -62,13 +62,15 @@ jobs:
       - name: Determine variable-params
         id: vars
         run: |
-          platforms=grep '# *PLATFORMS' ${{matrix.target}}/Dockerfile | \
-            sed 's!.*PLATFORMS  *!!;s!^!linux/!;s! ! linux/!g;s!\<arm\>!arm/v7!g;s! !,!g'
+          ls -l ./${{matrix.target}}/Dockerfile
+          platforms=`grep '# *PLATFORMS' ${{matrix.target}}/Dockerfile | \
+            sed 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!  *!,!g;;s!\<arm\>!arm/v7!g'`
+          echo "checkpoint_platforms=\"$platforms\""
           if [ -z "$platforms" ]; then
             platforms="linux/amd64"
           fi
-          echo "platforms=\"$platforms\"" >> "$GITHUB_OUTPUT"
-          echo "today=`date +%y%m%d`" >> "$GITHUB_OUTPUT"
+          echo "platforms=\"$platforms\"" | tee -a "$GITHUB_OUTPUT"
+          echo "today=`date +%y%m%d`" | tee -a "$GITHUB_OUTPUT"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
