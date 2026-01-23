@@ -18,7 +18,7 @@ RUN \
   sed -i~ 's!http://archive.ubuntu.com/ubuntu/!mirror://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list && \
   apt-get update && \
   apt-get upgrade --no-install-recommends -y && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     autoconf \
     autoconf-archive \
     automake \

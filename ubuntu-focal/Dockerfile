@@ -17,7 +17,7 @@ RUN \
   apt-get upgrade -y apt && \
   apt-get update && \
   apt-get upgrade --no-install-recommends -y && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     autoconf \
     autoconf-archive \
     automake \
