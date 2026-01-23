@@ -1,0 +1,82 @@
+name: Docker Image CI - GHCR
+
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: "0 5 15 * *"   # on the 15th of each month
+
+env:
+  REGISTRY: ghcr.io/kinkie
+
+jobs:
+  define-matrix:
+    runs-on: ubuntu-latest
+
+    outputs:
+      targets: ${{ steps.targets.outputs.targets }}
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Check out sources
+
+      - name: Define targets
+        id: targets
+        run: |
+          echo -n "targets=[" >> "$GITHUB_OUTPUT"
+          make targets | grep -v gentoo | sed 's/- /, "/;s/$/"/' | tr -d '\n' | sed 's/^, //' >> "$GITHUB_OUTPUT"
+          echo -n "]" >> "$GITHUB_OUTPUT"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: define-matrix
+
+    strategy:
+      max-parallel: 4
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.define-matrix.outputs.targets) }}
+
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v5
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Qemu
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Determine variable-params
+        id: vars
+        run: |
+          platforms=grep '# *PLATFORMS' ${{matrix.target}}/Dockerfile | \
+            sed 's!.*PLATFORMS  *!!;s!^!linux/!;s! ! linux/!g;s!\<arm\>!arm/v7!g;s! !,!g'
+          if [ -z "$platforms" ]; then
+            platforms="linux/amd64"
+          fi
+          echo "platforms=\"$platforms\"" >> "$GITHUB_OUTPUT"
+          echo "today=`date +%y%m%d`" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.target }}
+          platforms: ${{ steps.vars.outputs.platforms }}
+          # push: true
+          push: false
+          tags: |
+            ${{ env.REGISTRY }}/kinkie/${{ matrix.target }}:latest
+            ${{ env.REGISTRY }}/kinkie/${{ matrix.target }}:${{ steps.vars.outputs.today }}
