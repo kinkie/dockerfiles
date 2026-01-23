@@ -31,7 +31,7 @@ jobs:
     needs: define-matrix
 
     strategy:
-      max-parallel: 4
+      # max-parallel: 4
       fail-fast: false
       matrix:
         target: ${{ fromJSON(needs.define-matrix.outputs.targets) }}
@@ -65,7 +65,6 @@ jobs:
           ls -l ./${{matrix.target}}/Dockerfile
           platforms=`grep '# *PLATFORMS' ${{matrix.target}}/Dockerfile | \
             sed 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!  *!,!g;;s!\<arm\>!arm/v7!g'`
-          echo "checkpoint_platforms=\"$platforms\""
           if [ -z "$platforms" ]; then
             platforms="linux/amd64"
           fi
@@ -79,5 +78,5 @@ jobs:
           platforms: ${{ steps.vars.outputs.platforms }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/kinkie/${{ matrix.target }}:latest
-            ${{ env.REGISTRY }}/kinkie/${{ matrix.target }}:${{ steps.vars.outputs.today }}
+            ${{ env.REGISTRY }}/kinkie/buidfarm-${{ matrix.target }}:latest
+            ${{ env.REGISTRY }}/kinkie/buidfarm-${{ matrix.target }}:${{ steps.vars.outputs.today }}
