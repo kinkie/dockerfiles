@@ -23,7 +23,7 @@ jobs:
         id: targets
         run: |
           echo -n "targets=[" >> "$GITHUB_OUTPUT"
-          make targets | grep -v gentoo | sed 's/- /, "/;s/$/"/' | tr -d '\n' | sed 's/^, //' >> "$GITHUB_OUTPUT"
+          make targets | grep -v -e gentoo -e mingw -e gdb | sed 's/- /, "/;s/$/"/' | tr -d '\n' | sed 's/^, //' >> "$GITHUB_OUTPUT"
           echo -n "]" >> "$GITHUB_OUTPUT"
 
   build:
@@ -35,6 +35,62 @@ jobs:
       fail-fast: false
       matrix:
         target: ${{ fromJSON(needs.define-matrix.outputs.targets) }}
+
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v5
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Qemu
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Determine variable-params
+        id: vars
+        run: |
+          ls -l ./${{matrix.target}}/Dockerfile
+          platforms=`grep '# *PLATFORMS' ${{matrix.target}}/Dockerfile | \
+            sed 's!.*PLATFORMS  *!!;s!\<!linux/!g;s!  *!,!g;;s!\<arm\>!arm/v7!g'`
+          if [ -z "$platforms" ]; then
+            platforms="linux/amd64"
+          fi
+          echo "platforms=\"$platforms\"" | tee -a "$GITHUB_OUTPUT"
+          echo "today=`date +%y%m%d`" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.target }}
+          platforms: ${{ steps.vars.outputs.platforms }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/kinkie/buidfarm-${{ matrix.target }}:latest
+            ${{ env.REGISTRY }}/kinkie/buidfarm-${{ matrix.target }}:${{ steps.vars.outputs.today }}
+
+  build-derivatives:
+    runs-on: ubuntu-latest
+
+    strategy:
+      # max-parallel: 4
+      fail-fast: false
+      matrix:
+        target:
+        - fedora-mingw
+        - debian-gdb
 
     permissions:
       packages: write
