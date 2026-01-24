@@ -91,7 +91,7 @@ jobs:
       matrix:
         target:
         - fedora-mingw
-        - debian-gdb
+        - ubuntu-gdb
 
     permissions:
       packages: write
