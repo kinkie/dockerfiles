@@ -78,8 +78,8 @@ jobs:
           platforms: ${{ steps.vars.outputs.platforms }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/kinkie/buidfarm-${{ matrix.target }}:latest
-            ${{ env.REGISTRY }}/kinkie/buidfarm-${{ matrix.target }}:${{ steps.vars.outputs.today }}
+            ${{ env.REGISTRY }}/buidfarm-${{ matrix.target }}:latest
+            ${{ env.REGISTRY }}/buidfarm-${{ matrix.target }}:${{ steps.vars.outputs.today }}
 
   build-derivatives:
     runs-on: ubuntu-latest
@@ -135,5 +135,5 @@ jobs:
           platforms: ${{ steps.vars.outputs.platforms }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/kinkie/buidfarm-${{ matrix.target }}:latest
-            ${{ env.REGISTRY }}/kinkie/buidfarm-${{ matrix.target }}:${{ steps.vars.outputs.today }}
+            ${{ env.REGISTRY }}/buidfarm-${{ matrix.target }}:latest
+            ${{ env.REGISTRY }}/buidfarm-${{ matrix.target }}:${{ steps.vars.outputs.today }}
