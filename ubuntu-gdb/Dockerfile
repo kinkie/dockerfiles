@@ -1,6 +1,5 @@
 #PLATFORMS amd64 arm64
-
-# EOL Jul 2026
+#EOL 20260801
 
 FROM squidcache/buildfarm-ubuntu-questing:latest AS base
 

@@ -1,5 +1,5 @@
 #PLATFORMS amd64 arm64 arm riscv64 ppc64le
-# EOL April 2036
+#EOL 20360501
 
 ARG DISTRO=ubuntu
 ARG VERSION=noble

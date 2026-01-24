@@ -1,6 +1,5 @@
 #PLATFORMS amd64 arm64 arm riscv64 ppc64le
-
-# EOL Jan 2026
+#EOL 20260201
 
 ARG DISTRO="ubuntu"
 ARG VERSION="plucky"

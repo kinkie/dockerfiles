@@ -1,5 +1,5 @@
 #PLATFORMS amd64 arm64 arm riscv64 ppc64le
-# EOL April 2032
+#EOL 20320501
 
 ARG distro=ubuntu
 ARG version=focal

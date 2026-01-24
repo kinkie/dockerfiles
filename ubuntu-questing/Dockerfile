@@ -1,6 +1,5 @@
 #PLATFORMS amd64 arm64 arm riscv64 ppc64le
-
-# EOL Jul 2026
+#EOL 20260801
 
 ARG DISTRO="ubuntu"
 ARG VERSION="questing"

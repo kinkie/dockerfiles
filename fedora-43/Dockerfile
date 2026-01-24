@@ -1,5 +1,5 @@
-# EOL December 2026
 #PLATFORMS amd64 arm64 ppc64le
+#EOL 20270101
 
 ARG distro=fedora
 ARG version=43
