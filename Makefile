@@ -1,4 +1,4 @@
-REGISTRY:=ghcr.io/kinkie
+gEGISTRY:=ghcr.io/kinkie
 # REGISTRY:=squidcache
 TEST_REPO:=https://github.com/squid-cache/squid
 
@@ -29,7 +29,7 @@ list:
 	@echo "'make all' will build:"; echo "$(BUILD_TARGETS)"; echo
 
 targets:
-	@for tgt in $(TARGETS); do echo "- $$tgt"; done
+	@./bin/list-targets -y
 
 exclude-list:
 	@for CPU in $(ALL_PLATFORMS); do \
