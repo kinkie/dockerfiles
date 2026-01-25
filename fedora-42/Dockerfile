@@ -1,5 +1,5 @@
 #PLATFORMS amd64 arm64 ppc64le
-#EOL 20250601
+#EOL 20260601
 
 ARG distro=fedora
 ARG version=42
