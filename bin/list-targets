@@ -1,0 +1,23 @@
+#!/bin/bash
+
+cd $(dirname $0)/..
+today=$(date +%Y%m%d)
+prefix=""
+
+while getopts 'yh' optchar; do
+    case "$optchar" in
+    y) prefix="- ";;
+    h) echo "$0 [-y]: list possible targets to build. -y: emit yaml"; exit 0;;
+    -) break;;
+    esac
+done
+
+candidates=`ls */Dockerfile | sed 's!/Dockerfile!!g'`
+for c in $candidates
+do
+    test -e $c/skip && continue
+    grep -q '^#SKIP' $c/Dockerfile && continue
+    eol=$(grep '^#EOL ' $c/Dockerfile |awk '{print $2}')
+    test "x$eol" != "x" && test "$eol" -lt "$today" && continue
+    echo "${prefix}${c}"
+done
