@@ -1,0 +1,22 @@
+#!/bin/bash
+
+ALL_PLATFORMS="amd64 i386 arm64 arm riscv64 mips64le ppc64le"
+cd $(dirname $0)/..
+
+while getopts 'h' optchar; do
+    case "$optchar" in
+    h) echo "$0: prepare exclusion-list for github actions";;
+    -) break;;
+    esac
+done
+
+for c in $(./bin/list-targets)
+do
+    for p in $ALL_PLATFORMS
+    do
+        if ! grep -q "#PLATFORMS.*\<$p\>" $c/Dockerfile; then
+            echo "- { os: $c , platform: $p }"
+#            echo "- { platform: $p, os: $c }"
+        fi
+    done
+done

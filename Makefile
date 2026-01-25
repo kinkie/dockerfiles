@@ -32,13 +32,7 @@ targets:
 	@./bin/list-targets -y
 
 exclude-list:
-	@for CPU in $(ALL_PLATFORMS); do \
-		for OS in $(TARGETS) ; do \
-			if ! grep -q "PLATFORMS.*\<$$CPU\>" $$OS/Dockerfile; then \
-                echo "          - { platform: $$CPU, os: $$OS }" ;\
-			fi ; \
-        done; \
-    done # | $(SED) 's/\<arm\>/&\/v7/g'
+	@./bin/exclude-list
 
 json-exclude-list:
 	@printf "[ "; for CPU in $(ALL_PLATFORMS); do \
