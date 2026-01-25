@@ -1,0 +1,46 @@
+#!/bin/bash
+
+registry="ghcr.io/kinkie"
+# registry=docker.io/squidcache
+
+help() {
+    cat <<_EOF
+use: $0 [-r registry] <image>|-a
+Relabel <image> from stable to oldstable, and from latest to stable
+-a: promote images for all current targets
+-r: specify registry (default $registry)
+
+all images promotion has a long delay loop to not overwhelm API limits
+_EOF
+    exit 0
+}
+
+promote() {
+    local target=$1
+    docker buildx imagetools create -t $registry/buildfarm-$target:oldstable $registry/buildfarm-$target:stable && \
+    docker buildx imagetools create -t $registry/buildfarm-$target:stable $registry/buildfarm-$target:latest || \
+    exit 1
+}
+
+cd $(dirname $0)/..
+do_all_images=""
+
+while getopts 'ahr:' optchar; do
+    case "$optchar" in
+    a) do_all_images=true;;
+    r) registry=$OPTARG;;
+    h) help;;
+    -) break;;
+    esac
+done
+
+if [ -z "$do_all_images" ]; then
+    test -z "${1:-}" && help
+    promote $1
+    exit 0
+fi
+
+for image in `./bin/list-targets`; do
+    promote $image
+    sleep 300
+done

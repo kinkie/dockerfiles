@@ -1,4 +1,4 @@
-gEGISTRY:=ghcr.io/kinkie
+REGISTRY:=ghcr.io/kinkie
 # REGISTRY:=squidcache
 TEST_REPO:=https://github.com/squid-cache/squid
 
@@ -91,13 +91,17 @@ all: $(BUILD_TARGETS)
 # promote "latest" image to "stable" in the repository
 promote-%:
 	d="$(patsubst promote-%,%,$@)"; \
-    docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:oldstable $(REGISTRY)/buildfarm-$$d:stable || true ; \
-	docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:stable $(REGISTRY)/buildfarm-$$d:latest
+	./bin/promote-image -r $(REGISTRY) $$d
+
+#    docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:oldstable $(REGISTRY)/buildfarm-$$d:stable || true ; \
+#	docker buildx imagetools create -t $(REGISTRY)/buildfarm$(EXTRATAG)-$$d:stable $(REGISTRY)/buildfarm-$$d:latest
 
 promote:
-	for d in $(TARGETS); do \
-		make promote-$$d ; \
-	done
+	./bin/promote-image -r $(REGISTRY) -a
+
+#	for d in $(TARGETS); do \
+#		make promote-$$d ; \
+#	done
 
 clean:
 	-rm log-* *.log *.out *.err *.ok *.fail
