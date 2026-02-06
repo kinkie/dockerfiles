@@ -159,5 +159,5 @@ jobs:
           tags: |
             ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-${{ matrix.target }}:${{ steps.vars.outputs.today }}
             ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-${{ matrix.target }}:latest
-            docker.io/${{ env.DOCKER_REGISTRY }}/buildfarm-${{ matrix.target }}:${{ steps.vars.outputs.today }},enable=false
-            docker.io/${{ env.DOCKER_REGISTRY }}/buildfarm-${{ matrix.target }}:latest,enable=false
+            docker.io/${{ env.DOCKER_REGISTRY }}/buildfarm-${{ matrix.target }}:${{ steps.vars.outputs.today }}
+            docker.io/${{ env.DOCKER_REGISTRY }}/buildfarm-${{ matrix.target }}:latest
