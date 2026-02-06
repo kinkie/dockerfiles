@@ -12,15 +12,14 @@ on:
 #     paths:
 #       - 'gentoo/**'
   workflow_dispatch:
-#   schedule:
-#     # Build monthly on the 15th at 4 AM UTC
-#     - cron: "0 4 15 * *"
+  schedule:
+    - cron: "0 4 15 * *"
 
 env:
-  # REGISTRY_IMAGE: squidcache/buildfarm-gentoo
-  # REGISTRY: docker.io
+  GHCR_REGISTRY: ghcr.io/kinkie
+  DOCKER_REGISTRY: docker.io/squidcache
+  IMAGE_NAME: gentoo
   REGISTRY_IMAGE: ghcr.io/kinkie/buildfarm-gentoo
-  REGISTRY: ghcr.io/kinkie
 
 jobs:
   build:
@@ -32,35 +31,31 @@ jobs:
           - linux/arm/v7
           - linux/arm64
           # - linux/riscv64
-    # runs-on: ubuntu-latest
     runs-on: ${{ matrix.platform == 'linux/arm/v7' && 'ubuntu-24.04-arm' || matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-22.04' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Determine variable-params
+        id: vars
+        run: |
+          echo "today=`date +%y%m%d`" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.GHCR_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_IMAGE }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=schedule,pattern={{date 'YYMMDD'}}
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          images: |
+            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.today }}
+            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:latest
+            # no need to push to docker hub yet, push only the merged image
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -72,10 +67,13 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: ./gentoo
+          context: ./${{ env.IMAGE_NAME }}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ env.REGISTRY_IMAGE }}
+          tags: |
+            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.today }}
+            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:latest
+            # no need to push to docker hub yet, push only the merged image
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -99,18 +97,31 @@ jobs:
     needs:
       - build
     steps:
+      - name: Determine variable-params
+        id: vars
+        run: |
+          echo "today=`date +%y%m%d`" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.GHCR_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ${{ env.DOCKER_REGISTRY }}
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-*
           merge-multiple: true
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -119,17 +130,17 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_IMAGE }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=schedule,pattern={{date 'YYMMDD'}}
-            type=raw,value=latest,enable={{is_default_branch}}
+          images: |
+            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.today }}
+            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:latest
+
+        # ${{ env.DOCKER_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.today }}
+        # ${{ env.DOCKER_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:latest
 
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${{ steps.meta.outputs.json }}" ) \
             $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
 
       - name: Inspect image

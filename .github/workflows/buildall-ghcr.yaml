@@ -8,7 +8,7 @@ on:
     branches:
       - master
     paths:
-      - '/.github/workflows/buildall-ghcr.yaml'
+      - '.github/workflows/buildall-ghcr.yaml'
 
 env:
   GHCR_REGISTRY: kinkie
