@@ -14,11 +14,15 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 4 15 * *"
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/gentoo.yaml'
 
 env:
-  GHCR_REGISTRY: ghcr.io/kinkie
-  DOCKER_REGISTRY: docker.io/squidcache
-  IMAGE_NAME: gentoo
+  GHCR_REGISTRY: kinkie
+  DOCKER_REGISTRY: squidcache
   REGISTRY_IMAGE: ghcr.io/kinkie/buildfarm-gentoo
 
 jobs:
@@ -44,7 +48,7 @@ jobs:
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.GHCR_REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -53,8 +57,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.today }}
-            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:${{ steps.vars.outputs.today }}
+            ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:latest
             # no need to push to docker hub yet, push only the merged image
 
       - name: Set up QEMU
@@ -67,13 +71,12 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: ./${{ env.IMAGE_NAME }}
+          context: ./gentoo
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: |
-            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.today }}
-            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:latest
-            # no need to push to docker hub yet, push only the merged image
+            ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:${{ steps.vars.outputs.today }}
+            ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:latest
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -105,16 +108,15 @@ jobs:
       - name: Log in to GitHub Container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.GHCR_REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v3
-      #   with:
-      #     registry: ${{ env.DOCKER_REGISTRY }}
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Download digests
         uses: actions/download-artifact@v4
@@ -131,11 +133,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.today }}
-            ${{ env.GHCR_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:latest
-
-        # ${{ env.DOCKER_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.today }}
-        # ${{ env.DOCKER_REGISTRY }}/buildfarm-${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:${{ steps.vars.outputs.today }}
+            ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:latest
+            docker.io/${{ env.DOCKER_REGISTRY }}/buildfarm-gentoo:${{ steps.vars.outputs.today }}
+            docker.io/${{ env.DOCKER_REGISTRY }}/buildfarm-gentoo:latest
 
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
