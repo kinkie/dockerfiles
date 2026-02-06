@@ -30,7 +30,6 @@ RUN \
     gnutls-bin \
     graphviz \
     groff \
-    icecc \
     libcap-dev \
     libcppunit-dev \
     libexpat-dev \
