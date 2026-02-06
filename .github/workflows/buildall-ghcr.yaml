@@ -4,6 +4,11 @@ on:
   workflow_dispatch:
   schedule:
   - cron: "0 5 15 * *"   # on the 15th of each month
+  push:
+    branches:
+      - master
+    paths:
+      - '/.github/workflows/buildall-ghcr.yaml'
 
 env:
   GHCR_REGISTRY: kinkie
@@ -71,7 +76,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN_V2 }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Qemu
         uses: docker/setup-qemu-action@v3
@@ -136,7 +141,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN_V2 }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Qemu
         uses: docker/setup-qemu-action@v3
