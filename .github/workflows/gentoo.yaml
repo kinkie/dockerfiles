@@ -52,20 +52,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:${{ steps.vars.outputs.today }}
-            ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:latest
-            # no need to push to docker hub yet, push only the merged image
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_IMAGE }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=schedule,pattern={{date 'YYMMDD'}}
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push by digest
         id: build
