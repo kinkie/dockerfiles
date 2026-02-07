@@ -12,44 +12,16 @@ LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
 LABEL description="${distro} ${version} userland used to build Squid"
 RUN \
+  . /etc/os-release && \
+  echo "deb-src http://deb.debian.org/debian ${VERSION_CODENAME} main" >> /etc/apt/sources.list && \
   apt-get update && \
-  apt-get upgrade --no-install-recommends -y && \
+  apt-get build-dep -y squid && \
   apt-get install --no-install-recommends -y \
-    autoconf \
     autoconf-archive \
-    automake \
-    bzip2 \
     ca-certificates \
     ccache \
-    clang \
-    curl \
-    doxygen \
-    ed \
-    g++ \
     git \
     gnutls-bin \
-    graphviz \
-    groff \
-    libcap-dev \
-    libcppunit-dev \
-    libexpat-dev \
-    libgnutls28-dev \
-    libltdl-dev \
-    libssl-dev \
-    libtdb-dev \
-    libtool \
-    libtool-bin \
-    libxml2-dev \
-    linuxdoc-tools \
-    make \
-    nano \
-    nettle-dev \
-    pandoc \
-    pkg-config \
-    po4a \
-    translate-toolkit \
-    vim \
-    xz-utils \
   && \
   apt-get autoremove -y && \
   apt-get clean -y && \
