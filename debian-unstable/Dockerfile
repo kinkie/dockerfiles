@@ -22,7 +22,7 @@ RUN \
     ccache \
     git \
     gnutls-bin \
-    libtool \
+    libtool-bin \
   && \
   apt-get autoremove -y && \
   apt-get clean -y && \
