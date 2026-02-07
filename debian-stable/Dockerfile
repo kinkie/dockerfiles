@@ -20,6 +20,7 @@ RUN \
     autoconf-archive \
     ca-certificates \
     ccache \
+    clang \
     git \
     gnutls-bin \
     libtool-bin \

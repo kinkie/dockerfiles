@@ -13,6 +13,7 @@ LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${distro}-${version}"
 LABEL description="${distro} ${version} userland used to build Squid"
 RUN \
+  export DEBIAN_FRONTEND=noninteractive && \
   . /etc/os-release && \
   echo "deb-src mirror://mirrors.ubuntu.com/mirrors.txt ${VERSION_CODENAME} main" >> /etc/apt/sources.list && \
   apt-get update && \
@@ -22,6 +23,7 @@ RUN \
     autoconf-archive \
     ca-certificates \
     ccache \
+    clang \
     git \
     gnutls-bin \
     libtool-bin \

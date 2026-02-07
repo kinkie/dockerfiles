@@ -15,6 +15,7 @@ LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${D
 LABEL description="${DISTRO} ${VERSION} userland used to build Squid"
 
 RUN \
+  export DEBIAN_FRONTEND=noninteractive && \
   . /etc/os-release && \
   echo "deb-src mirror://mirrors.ubuntu.com/mirrors.txt ${VERSION_CODENAME} main" >> /etc/apt/sources.list && \
   apt-get update && \
@@ -24,6 +25,7 @@ RUN \
     autoconf-archive \
     ca-certificates \
     ccache \
+    clang \
     git \
     gnutls-bin \
     libtool-bin \

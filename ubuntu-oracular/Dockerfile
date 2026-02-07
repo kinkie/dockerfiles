@@ -14,6 +14,7 @@ LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${DISTRO}-${VERSION}"
 LABEL description="${DISTRO} ${VERSION} userland used to build Squid"
 RUN \
+  export DEBIAN_FRONTEND=noninteractive && \
   apt-get update && \
   apt-get upgrade -y apt && \
   apt-get update && \
