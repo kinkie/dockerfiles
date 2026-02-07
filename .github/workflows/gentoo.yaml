@@ -1,23 +1,19 @@
 name: Build Gentoo Multi-Platform
 
 on:
-#   push:
-#     branches:
-#       - master
-#     paths:
-#       - 'gentoo/**'
-#   pull_request:
-#     branches:
-#       - master
-#     paths:
-#       - 'gentoo/**'
   workflow_dispatch:
-#   schedule:
-#     # Build monthly on the 15th at 4 AM UTC
-#     - cron: "0 4 15 * *"
+  schedule:
+    - cron: "0 4 15 * *"
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/gentoo.yaml'
+      - 'gentoo/Dockerfile'
 
 env:
   REGISTRY_IMAGE: squidcache/buildfarm-gentoo
+  GHCR_REGISTRY: kinkie
 
 jobs:
   build:
@@ -89,6 +85,11 @@ jobs:
     needs:
       - build
     steps:
+      - name: Determine variable-params
+        id: vars
+        run: |
+          echo "today=`date +%y%m%d`" | tee -a "$GITHUB_OUTPUT"
+
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
@@ -101,6 +102,13 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -121,6 +129,10 @@ jobs:
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
+          docker buildx imagetools create \
+            -t ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:${{ steps.vars.outputs.today }} \
+            -t ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:latest \
+            ${{ env.REGISTRY_IMAGE }}:latest
 
       - name: Inspect image
         run: |
