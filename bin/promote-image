@@ -27,10 +27,10 @@ do_all_images=""
 
 while getopts 'ahr:' optchar; do
     case "$optchar" in
-    a) do_all_images=true;;
-    r) registry=$OPTARG;;
+    a) do_all_images=true; shift;;
+    r) registry=$OPTARG; shift 2;;
     h) help;;
-    -) break;;
+    -) shift; break;;
     esac
 done
 
