@@ -40,11 +40,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Determine variable-params
-        id: vars
-        run: |
-          echo "today=`date +%y%m%d`" | tee -a "$GITHUB_OUTPUT"
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -76,9 +71,7 @@ jobs:
           context: ./gentoo
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: |
-            ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:${{ steps.vars.outputs.today }}
-            ghcr.io/${{ env.GHCR_REGISTRY }}/buildfarm-gentoo:latest
+          tags: ${{ env.REGISTRY_IMAGE }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha
           cache-to: type=gha,mode=max
