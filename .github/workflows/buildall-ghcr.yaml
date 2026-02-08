@@ -2,13 +2,18 @@ name: Docker Image CI - GHCR
 
 on:
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target image to build (e.g. ubuntu-noble)'
+        required: false
+        default: 'all'
   schedule:
   - cron: "0 5 15 * *"   # on the 15th of each month
-  push:
-    branches:
-      - master
-    paths:
-      - '.github/workflows/buildall-ghcr.yaml'
+  # push:
+  #   branches:
+  #     - master
+  #   paths:
+  #     - '.github/workflows/buildall-ghcr.yaml'
 
 env:
   GHCR_REGISTRY: kinkie
@@ -29,6 +34,10 @@ jobs:
       - name: Define targets
         id: targets
         run: |
+          if [ "x${{ github.event.inputs.target }}" != "xall" ]; then
+              echo "targets=[\"${{ github.event.inputs.target }}\"]" >> "$GITHUB_OUTPUT"
+              exit 0
+          fi
           echo -n "targets=[" >> "$GITHUB_OUTPUT"
           make targets | grep -v -e gentoo -e mingw -e gdb | sed 's/- /, "/;s/$/"/' | tr -d '\n' | sed 's/^, //' >> "$GITHUB_OUTPUT"
           echo -n "]" >> "$GITHUB_OUTPUT"
