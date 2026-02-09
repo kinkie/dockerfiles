@@ -8,7 +8,7 @@ on:
         required: false
         default: 'all'
   schedule:
-  - cron: "0 5 15 * *"   # on the 15th of each month
+  - cron: "0 18 25 * *"
   # push:
   #   branches:
   #     - master
