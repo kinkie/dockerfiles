@@ -1,4 +1,4 @@
-name: Docker Image CI - GHCR
+name: Build all images and push to GHCR and Docker Hub
 
 on:
   workflow_dispatch:
