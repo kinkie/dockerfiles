@@ -16,17 +16,34 @@ env:
   GHCR_REGISTRY: kinkie
 
 jobs:
+  build-exclusion-list:
+    runs-on: ubuntu-latest
+    outputs:
+      exclusion: ${{ steps.exclusion.outputs.exclusion }}
+    steps:
+      - uses: actions/checkout@v4
+        name: Check out sources
+
+      - name: Build allowed platforms
+        id: exclusion
+        run: |
+          printf "exclusion=" >> "$GITHUB_OUTPUT"
+          make json-exclude-list >> "$GITHUB_OUTPUT"
+
   build:
+    needs: build-exclusion-list
     strategy:
       fail-fast: false
       matrix:
         platform:
-          - linux/amd64
-          - linux/arm/v7
-          - linux/arm64
-          - linux/riscv64
-    # runs-on: ubuntu-latest
-    runs-on: ${{ matrix.platform == 'linux/arm/v7' && 'ubuntu-24.04-arm' || matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-22.04' }}
+          - amd64
+          - arm/v7
+          - arm64
+          - riscv64
+        os: [ gentoo ]
+        exclude:  ${{ fromJSON(needs.build-exclusion-list.outputs.exclusion) }}
+
+    runs-on: ${{ matrix.platform == 'arm/v7' && 'ubuntu-24.04-arm' || matrix.platform == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-22.04' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,7 +76,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./gentoo
-          platforms: ${{ matrix.platform }}
+          platforms: linux/${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ env.REGISTRY_IMAGE }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
