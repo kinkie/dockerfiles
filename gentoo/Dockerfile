@@ -1,4 +1,4 @@
-#PLATFORMS amd64 arm arm64 riscv64
+#PLATFORMS amd64 arm arm64
 # i386 disabled because in docker uname -m returns wrong arch, confusing blake3
 # See https://packages.gentoo.org/packages/dev-libs/blake3
 ARG distro=gentoo
