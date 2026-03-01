@@ -3,7 +3,7 @@ name: Gentoo
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 4 15 * *"
+    - cron: "0 4 * * 0"
   push:
     branches:
       - master
