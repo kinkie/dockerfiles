@@ -92,6 +92,21 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Check out Squidcache sources
+        uses: actions/checkout@v6
+        with:
+          repository: squid-cache/squid
+          path: squid
+
+      - name: test Squid build before publishing image
+        run: |
+          docker run --rm \
+            -u 0 \
+            -v ${{ github.workspace }}/squid:/squid \
+            -w /squid \
+            $(printf '${{ env.REGISTRY_IMAGE }}@%s ' ${{ steps.build.outputs.digest }}) \
+            ./test-builds.sh
+
       - name: Export digest
         run: |
           mkdir -p ${{ runner.temp }}/digests
@@ -104,7 +119,7 @@ jobs:
           name: digests-${{ strategy.job-index }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 3
 
   merge:
     runs-on: ubuntu-latest
