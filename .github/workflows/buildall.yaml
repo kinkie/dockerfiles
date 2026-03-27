@@ -9,11 +9,11 @@ on:
         default: 'all'
   schedule:
   - cron: "0 18 25 * *"
-  # push:
-  #   branches:
-  #     - master
-  #   paths:
-  #     - '.github/workflows/buildall-ghcr.yaml'
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/buildall.yaml'
 
 env:
   GHCR_REGISTRY: kinkie
