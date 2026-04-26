@@ -1,0 +1,79 @@
+#PLATFORMS amd64 arm64 arm riscv64 ppc64le
+#EOL 20310601
+
+ARG DISTRO="ubuntu"
+ARG VERSION="resolute"
+
+#FROM ${DISTRO}:${VERSION}
+FROM public.ecr.aws/${DISTRO}/${DISTRO}:${VERSION}
+
+ARG DISTRO
+ARG VERSION
+
+LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
+LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/${DISTRO}-${VERSION}"
+LABEL description="${DISTRO} ${VERSION} userland used to build Squid"
+
+RUN \
+  export DEBIAN_FRONTEND=noninteractive && \
+  . /etc/os-release && \
+  echo "deb-src mirror://mirrors.ubuntu.com/mirrors.txt ${VERSION_CODENAME} main" >> /etc/apt/sources.list && \
+  apt-get update && \
+  apt-get build-dep -y squid && \
+  apt-get upgrade --no-install-recommends -y && \
+  apt-get install --no-install-recommends -y \
+    autoconf-archive \
+    ca-certificates \
+    ccache \
+    clang \
+    git \
+    gnutls-bin \
+    libtool-bin \
+  && \
+  apt-get autoremove -y && \
+  apt-get clean -y && \
+  true
+RUN \
+  if id ubuntu >/dev/null; then userdel -r ubuntu ; fi && \
+  if getent group ubuntu >/dev/null; then groupdel ubuntu ; fi && \
+  groupadd -g 1000 jenk && \
+  useradd -u 1000 -g jenk -m jenk && \
+  groupadd -g 3128 jenkins && \
+  useradd -u 3128 -g jenkins -m jenkins && \
+  groupadd -g 1001 kinkie && \
+  useradd -u 1001 -m -g kinkie kinkie && \
+  true
+
+USER jenkins
+CMD ["/bin/bash", "-l"]
+
+# DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+#   autoconf \
+#   autoconf-archive \
+#   automake \
+#   bzip2 \
+#   ca-certificates \
+#   ccache \
+#   clang \
+#   curl \
+#   ed \
+#   g++ \
+#   git \
+#   gnutls-bin \
+#   libcap-dev \
+#   libcppunit-dev \
+#   libexpat-dev \
+#   libgnutls28-dev \
+#   libltdl-dev \
+#   libssl-dev \
+#   libtdb-dev \
+#   libtool \
+#   libtool-bin \
+#   libxml2-dev \
+#   make \
+#   nettle-dev \
+#   pandoc \
+#   pkg-config \
+#   po4a \
+#   translate-toolkit \
+#   xz-utils \
