@@ -34,6 +34,7 @@ jobs:
       - name: Define targets
         id: targets
         run: |
+          echo "target: ${{ github.event.inputs.target }}"
           if [ "x${{ github.event.inputs.target }}" != "xall" ]; then
               echo "targets=[\"${{ github.event.inputs.target }}\"]" >> "$GITHUB_OUTPUT"
               exit 0
@@ -41,6 +42,7 @@ jobs:
           echo -n "targets=[" >> "$GITHUB_OUTPUT"
           make targets | grep -v -e gentoo -e mingw -e gdb | sed 's/- /, "/;s/$/"/' | tr -d '\n' | sed 's/^, //' >> "$GITHUB_OUTPUT"
           echo -n "]" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
 
   build:
     runs-on: ubuntu-latest
@@ -73,6 +75,7 @@ jobs:
           fi
           echo "platforms=\"$platforms\"" | tee -a "$GITHUB_OUTPUT"
           echo "today=`date +%y%m%d`" | tee -a "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
 
       - name: Log in to GitHub Container registry
         uses: docker/login-action@v3
