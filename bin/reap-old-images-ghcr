@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# reap-old-images-ghcr
+# For each container package under <account> on ghcr.io, find versions whose
+# tag is exactly 6 digits (YYMMDD format), keep the 5 newest, delete the rest.
+#
+# Usage: reap-old-images-ghcr [--dry-run] <account>
+#
+# Requires a GitHub token with read:packages and delete:packages scopes.
+# ---------------------------------------------------------------------------
+
+DRY_RUN=false
+ACCOUNT=""
+
+# --- Argument parsing -------------------------------------------------------
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run) DRY_RUN=true ;;
+        --*)
+            echo "ERROR: Unknown option: $arg" >&2
+            echo "Usage: $(basename "$0") [--dry-run] <account>" >&2
+            exit 1
+            ;;
+        *)
+            if [[ -n "$ACCOUNT" ]]; then
+                echo "ERROR: Unexpected argument: $arg" >&2
+                echo "Usage: $(basename "$0") [--dry-run] <account>" >&2
+                exit 1
+            fi
+            ACCOUNT="$arg"
+            ;;
+    esac
+done
+
+if [[ -z "$ACCOUNT" ]]; then
+    echo "ERROR: Account name is required." >&2
+    echo "Usage: $(basename "$0") [--dry-run] <account>" >&2
+    exit 1
+fi
+
+# --- Dependency checks -------------------------------------------------------
+for cmd in gh jq; do
+    if ! command -v "$cmd" &>/dev/null; then
+        echo "ERROR: Required command not found in PATH: $cmd" >&2
+        exit 1
+    fi
+done
+
+# Warn if required token scopes appear to be missing (non-fatal: gh may still
+# work if the token has fine-grained permissions not reported by auth status).
+if gh auth status 2>&1 | grep -q "Token scopes:"; then
+    scopes=$(gh auth status 2>&1 | grep "Token scopes:")
+    for scope in read:packages delete:packages; do
+        if ! echo "$scopes" | grep -q "$scope"; then
+            echo "WARNING: gh token may be missing scope '$scope'" >&2
+        fi
+    done
+fi
+
+# --- Auto-detect account type (org vs user) ----------------------------------
+API_BASE=""
+if gh api "/orgs/${ACCOUNT}" --silent 2>/dev/null; then
+    API_BASE="/orgs/${ACCOUNT}/packages"
+    ACCOUNT_TYPE="org"
+elif gh api "/users/${ACCOUNT}" --silent 2>/dev/null; then
+    API_BASE="/users/${ACCOUNT}/packages"
+    ACCOUNT_TYPE="user"
+else
+    echo "ERROR: Could not resolve '${ACCOUNT}' as a GitHub org or user." >&2
+    exit 1
+fi
+
+# --- Header ------------------------------------------------------------------
+if $DRY_RUN; then
+    echo "[DRY RUN] No versions will be deleted."
+fi
+echo "Account : $ACCOUNT ($ACCOUNT_TYPE)"
+echo "Policy  : keep 5 newest YYMMDD-tagged versions per package, delete the rest"
+echo "---"
+
+# ---------------------------------------------------------------------------
+# Main loop — iterate over container packages
+# ---------------------------------------------------------------------------
+packages_json=$(gh api --paginate "${API_BASE}?package_type=container" 2>/dev/null || true)
+
+if [[ -z "$packages_json" || "$packages_json" == "[]" ]]; then
+    echo "No container packages found for account: $ACCOUNT"
+    exit 0
+fi
+
+while IFS= read -r package_name; do
+    echo "Package: $package_name"
+
+    versions_json=$(gh api --paginate \
+        "${API_BASE}/container/${package_name}/versions?per_page=100" \
+        2>/dev/null || true)
+
+    if [[ -z "$versions_json" || "$versions_json" == "[]" ]]; then
+        echo "  (no versions)"
+        continue
+    fi
+
+    # Build a list of "sort_key|version_id|tag1,tag2,..." for versions that
+    # carry at least one YYMMDD tag.  Use the max YYMMDD tag as the sort key.
+    #
+    # jq logic:
+    #   - for each version, collect tags matching /^[0-9]{6}$/
+    #   - skip versions with no such tags
+    #   - emit "<max_dated_tag>|<id>|<comma-joined tags>"
+    dated_versions=()
+    while IFS= read -r line; do
+        dated_versions+=("$line")
+    done < <(
+        echo "$versions_json" | jq -r '
+            .[] |
+            . as $v |
+            ( $v.metadata.container.tags //  [] |
+              map(select(test("^[0-9]{6}$"))) ) as $dated |
+            if ($dated | length) == 0 then empty
+            else
+                ( $dated | max ) as $sort_key |
+                ( $dated | join(",") ) as $tag_list |
+                "\($sort_key)|\($v.id)|\($tag_list)"
+            end
+        ' | sort -t'|' -k1 -r
+    )
+
+    if (( ${#dated_versions[@]} == 0 )); then
+        echo "  (no YYMMDD-tagged versions)"
+        continue
+    fi
+
+    echo "  Found ${#dated_versions[@]} YYMMDD-tagged version(s)"
+
+    for i in "${!dated_versions[@]}"; do
+        entry="${dated_versions[$i]}"
+        sort_key="${entry%%|*}"
+        rest="${entry#*|}"
+        version_id="${rest%%|*}"
+        tag_list="${rest#*|}"
+
+        if (( i < 5 )); then
+            echo "  Keeping : id=${version_id}  tags=${tag_list}"
+        else
+            if $DRY_RUN; then
+                echo "  [DRY RUN] Would remove: id=${version_id}  tags=${tag_list}"
+            else
+                if gh api --method DELETE \
+                    "${API_BASE}/container/${package_name}/versions/${version_id}" \
+                    2>/dev/null; then
+                    echo "  Removed : id=${version_id}  tags=${tag_list}"
+                else
+                    echo "  ERROR: Failed to remove id=${version_id} tags=${tag_list}" >&2
+                fi
+            fi
+        fi
+    done
+
+done < <(echo "$packages_json" | jq -r '.[].name')
+
+echo "---"
+echo "Done."
