@@ -1,7 +1,7 @@
 #!/bin/bash
 
-registry="ghcr.io/kinkie"
-# registry=docker.io/squidcache
+# registry="ghcr.io/kinkie"
+registry=docker.io/squidcache
 
 help() {
     cat <<_EOF
@@ -27,12 +27,12 @@ do_all_images=""
 
 while getopts 'ahr:' optchar; do
     case "$optchar" in
-    a) do_all_images=true; shift;;
-    r) registry=$OPTARG; shift 2;;
+    a) do_all_images=true;;
+    r) registry=$OPTARG;;
     h) help;;
-    -) shift; break;;
     esac
 done
+shift $((OPTIND - 1))
 
 if [ -z "$do_all_images" ]; then
     test -z "${1:-}" && help

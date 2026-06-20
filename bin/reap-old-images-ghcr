@@ -149,7 +149,7 @@ while IFS= read -r package_name; do
             else
                 if gh api --method DELETE \
                     "${API_BASE}/container/${package_name}/versions/${version_id}" \
-                    2>/dev/null; then
+                    2>/dev/null | cat; then
                     echo "  Removed : id=${version_id}  tags=${tag_list}"
                 else
                     echo "  ERROR: Failed to remove id=${version_id} tags=${tag_list}" >&2
