@@ -21,7 +21,7 @@ jobs:
     outputs:
       exclusion: ${{ steps.exclusion.outputs.exclusion }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         name: Check out sources
 
       - name: Build allowed platforms
@@ -46,11 +46,11 @@ jobs:
     runs-on: ${{ matrix.platform == 'arm/v7' && 'ubuntu-24.04-arm' || matrix.platform == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-22.04' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           tags: |
@@ -60,27 +60,27 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Log in to GitHub Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build and push by digest
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./gentoo
           platforms: linux/${{ matrix.platform }}
@@ -93,7 +93,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Check out Squidcache sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: squid-cache/squid
           path: squid
@@ -114,7 +114,7 @@ jobs:
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: digests-${{ strategy.job-index }}
           path: ${{ runner.temp }}/digests/*
@@ -132,31 +132,31 @@ jobs:
           echo "today=`date +%y%m%d`" | tee -a "$GITHUB_OUTPUT"
 
       - name: Download digests
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-*
           merge-multiple: true
 
       - name: Log in to GitHub Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           tags: |
