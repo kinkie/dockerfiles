@@ -1,7 +1,7 @@
 #PLATFORMS amd64 arm64
 #EOL 20260801
 
-FROM squidcache/buildfarm-ubuntu-questing:latest AS base
+FROM squidcache/buildfarm-ubuntu-resolute:latest AS base
 
 LABEL maintainer="Francesco Chemolli <kinkie@squid-cache.org>"
 LABEL org.opencontainers.image.source="https://github.com/kinkie/dockerfiles/ubuntu-gdb"
@@ -15,6 +15,7 @@ RUN \
   apt-get upgrade --no-install-recommends -y && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y \
     gdb \
+    npm \
     vim \
   && \
   apt-get autoremove -y && \
