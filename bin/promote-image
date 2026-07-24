@@ -17,9 +17,11 @@ _EOF
 
 promote() {
     local target=$1
+    echo "promoting $target:stable -> oldstable"
     docker buildx imagetools create -t $registry/buildfarm-$target:oldstable $registry/buildfarm-$target:stable && \
+    echo "promoting $target:latest -> stable" && \
     docker buildx imagetools create -t $registry/buildfarm-$target:stable $registry/buildfarm-$target:latest || \
-    exit 1
+    true
 }
 
 cd $(dirname $0)/..
@@ -27,12 +29,13 @@ do_all_images=""
 
 while getopts 'ahr:' optchar; do
     case "$optchar" in
-    a) do_all_images=true; shift;;
-    r) registry=$OPTARG; shift 2;;
+    a) do_all_images=true;;
+    r) registry=$OPTARG;;
     h) help;;
-    -) shift; break;;
+    -) break;;
     esac
 done
+shift $((OPTIND-1))
 
 if [ -z "$do_all_images" ]; then
     test -z "${1:-}" && help
