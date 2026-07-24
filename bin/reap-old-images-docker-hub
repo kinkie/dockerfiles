@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# docker-hub-delete-old-images
+# For each repository under <account>, find tags whose name is exactly 6
+# digits (YYMMDD format), keep the 5 newest, and delete the rest.
+#
+# Usage: docker-hub-delete-old-images [--dry-run] <account>
+# ---------------------------------------------------------------------------
+
+DRY_RUN=false
+ACCOUNT=""
+
+# --- Argument parsing -------------------------------------------------------
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run) DRY_RUN=true ;;
+        --*)
+            echo "ERROR: Unknown option: $arg" >&2
+            echo "Usage: $(basename "$0") [--dry-run] <account>" >&2
+            exit 1
+            ;;
+        *)
+            if [[ -n "$ACCOUNT" ]]; then
+                echo "ERROR: Unexpected argument: $arg" >&2
+                echo "Usage: $(basename "$0") [--dry-run] <account>" >&2
+                exit 1
+            fi
+            ACCOUNT="$arg"
+            ;;
+    esac
+done
+
+if [[ -z "$ACCOUNT" ]]; then
+    echo "ERROR: Account name is required." >&2
+    echo "Usage: $(basename "$0") [--dry-run] <account>" >&2
+    exit 1
+fi
+
+# --- Dependency checks -------------------------------------------------------
+for cmd in hub-tool jq; do
+    if ! command -v "$cmd" &>/dev/null; then
+        echo "ERROR: Required command not found in PATH: $cmd" >&2
+        exit 1
+    fi
+done
+
+# --- Header -----------------------------------------------------------------
+if $DRY_RUN; then
+    echo "[DRY RUN] No tags will be deleted."
+fi
+echo "Account : $ACCOUNT"
+echo "Policy  : keep 5 newest YYMMDD tags per repository, delete the rest"
+echo "---"
+
+# ---------------------------------------------------------------------------
+# Main loop
+# ---------------------------------------------------------------------------
+repos=$(hub-tool repo ls --all --format json "$ACCOUNT" 2>/dev/null \
+        | jq -r '.[].Name')
+
+if [[ -z "$repos" ]]; then
+    echo "No repositories found for account: $ACCOUNT"
+    exit 0
+fi
+
+while IFS= read -r repo; do
+    echo "Repository: $repo"
+
+    tag_json=$(hub-tool tag ls --all --format json "$repo" 2>/dev/null || true)
+
+    if [[ -z "$tag_json" || "$tag_json" == "[]" ]]; then
+        echo "  (no tags)"
+        continue
+    fi
+
+    # Extract tag names of the form <repo>:YYMMDD, then sort descending.
+    # The tag portion is everything after the last ':'.
+    # (avoid mapfile: not available in bash 3)
+    dated_tags=()
+    while IFS= read -r t; do
+        dated_tags+=("$t")
+    done < <(
+        jq -r '.[].Name' <<<"$tag_json" \
+        | awk -F: '$NF ~ /^[0-9]{6}$/' \
+        | sort -t: -k2 -r
+    )
+
+    if (( ${#dated_tags[@]} == 0 )); then
+        echo "  (no YYMMDD tags)"
+        continue
+    fi
+
+    echo "  Found ${#dated_tags[@]} YYMMDD tag(s)"
+
+    for i in "${!dated_tags[@]}"; do
+        tag="${dated_tags[$i]}"
+        if (( i < 5 )); then
+            echo "  Keeping : $tag"
+        else
+            if $DRY_RUN; then
+                echo "  [DRY RUN] Would remove: $tag"
+            else
+                if hub-tool tag rm -f "$tag" 2>/dev/null; then
+                    echo "  Removed : $tag"
+                else
+                    echo "  ERROR: Failed to remove $tag" >&2
+                fi
+            fi
+        fi
+    done
+
+done <<<"$repos"
+
+echo "---"
+echo "Done."

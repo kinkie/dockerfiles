@@ -16,7 +16,10 @@ RUN \
   true
 
 RUN \
-  emerge -j`nproc` -l`nproc` -q \
+  export parallel_jobs="`nproc`" ; \
+  export parallel_load="$parallel_jobs" ; \
+  export MAKEOPTS="-j$parallel_jobs -l$parallel_load" ; \
+  emerge -j3 -q \
     dev-util/ccache \
     dev-util/cppunit \
     dev-vcs/git \
