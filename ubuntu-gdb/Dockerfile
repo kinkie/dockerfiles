@@ -14,8 +14,12 @@ RUN \
   apt-get update && \
   apt-get upgrade --no-install-recommends -y && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    astyle \
+    curl \
     gdb \
     npm \
+    openssh-client \
+    sudo \
     vim \
   && \
   apt-get autoremove -y && \

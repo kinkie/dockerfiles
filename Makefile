@@ -16,6 +16,7 @@ ALL_PLATFORMS=amd64 i386 arm64 arm riscv64 mips64le ppc64le
 
 BUILDOPTS=
 BUILDOPTS+=--pull
+#BUILDOPTS+=--progress=plain
 EXTRATAG:=
 
 DATE:=$(shell date +%y%m%d)
@@ -87,8 +88,8 @@ $(ALL_TARGETS):
 	IMAGELABELBASE="$(REGISTRY)/buildfarm$(EXTRATAG)-$$TGT" ; \
 	IMAGELABEL="-t $$IMAGELABELBASE:latest -t $$IMAGELABELBASE:$(DATE)" ;\
 	PLATFORM=`grep PLATFORMS $$TGT/Dockerfile | $(SED) 's!.*PLATFORMS  *!!;s!^!linux/!;s! ! linux/!g;s!\<arm\>!arm/v7!g;s! !,!g'` ;\
-	echo "docker buildx build $$IMAGELABEL --platform $$PLATFORM --push $$TGT" ; \
-	if docker buildx build $$IMAGELABEL --platform $$PLATFORM --push $$TGT ; then \
+	echo "docker buildx build $(BUILDOPTS) $$IMAGELABEL --platform $$PLATFORM --push $$TGT" ; \
+	if docker buildx build $(BUILDOPTS) $$IMAGELABEL --platform $$PLATFORM --push $$TGT ; then \
 	  touch $$TGT.ok; else touch $$TGT.fail ; \
 	fi
 
