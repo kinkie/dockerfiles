@@ -15,6 +15,7 @@ RUN \
   apt-get upgrade --no-install-recommends -y && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y \
     astyle \
+    bear \
     curl \
     gdb \
     npm \
