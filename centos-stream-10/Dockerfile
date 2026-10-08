@@ -59,9 +59,9 @@ RUN \
   groupadd -g 1000 jenk && \
   useradd -u 1000 -g jenk -m jenk && \
   groupadd -g 3128 jenkins && \
-  useradd -u 3128 -m -g jenkins -G ccache jenkins && \
+  useradd -u 3128 -m -g jenkins jenkins && \
   groupadd -g 1001 kinkie && \
-  useradd -u 1001 -m -g kinkie -G ccache kinkie && \
+  useradd -u 1001 -m -g kinkie kinkie && \
   true
 
 USER jenkins
