@@ -1,5 +1,5 @@
 #PLATFORMS amd64 arm64 arm riscv64 ppc64le
-#EOL 20310707
+#EOL 20270731
 
 ARG DISTRO="ubuntu"
 ARG VERSION="stonking"
