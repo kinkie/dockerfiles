@@ -4,8 +4,8 @@
 ARG DISTRO=ubuntu
 ARG VERSION=noble
 
-# FROM ${DISTRO}:${VERSION}
-FROM public.ecr.aws/${DISTRO}/${DISTRO}:${VERSION}
+FROM ${DISTRO}:${VERSION}
+# FROM public.ecr.aws/${DISTRO}/${DISTRO}:${VERSION}
 
 ARG DISTRO
 ARG VERSION
